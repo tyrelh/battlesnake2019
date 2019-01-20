@@ -1,76 +1,17 @@
-# starter-snake-node(js)
+# Battlesnake 2019 AI
+![Battlesnake 2019](https://static1.squarespace.com/static/583102acff7c504696a7009b/t/5c2a3b9cf950b760dd5bacb4/1546542614910/BATTLESNAKE+LOGO+2019.png?format=2500w)
 
-A simple [Battlesnake AI](https://battlesnake.io) written in Javascript for NodeJS.
+This is my entry for this years [Battlesnake](https://www.battlesnake.io) programming competition in Victoria BC.
 
-To get started you'll need a working NodeJS development environment, and at least read the Heroku docs on [deploying a NodeJS app](https://devcenter.heroku.com/articles/getting-started-with-nodejs).
+Forked from the [NodeJS starter snake](https://github.com/battlesnakeio/starter-snake-node) provided by the [Battlesnake community](https://github.com/battlesnakeio/community).
 
-If you haven't setup a NodeJS development environment before, read [how to get started with NodeJS](http://nodejs.org/documentation/tutorials/). You'll also need [npm](https://www.npmjs.com/) for easy JS dependency management.
+## State of AI
+TODO
 
-This client uses [Express4](http://expressjs.com/en/4x/api.html) for easy route management, read up on the docs to learn more about reading incoming JSON params, writing responses, etc.
+## Running the snake locally
+Follow the directions given at the [original repo](https://github.com/battlesnakeio/starter-snake-node) for running the snake locally and for deploying to Heroku.
 
-[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
-
-## Running the AI locally
-
-Fork and clone this repo:
-
-```shell
-git clone git@github.com:battlesnakeio/starter-snake-node.git
-cd battlesnake-node
-```
-
-Install the client dependencies:
-
-```shell
-npm install
-```
-
-Create an `.env` file in the root of the project and add your environment variables (optional).
-
-Run the server with auto-reloading on file change:
-
-```shell
-npm start
-```
-
-Test the client in your browser at <http://localhost:5000>
-
-## Deploying to Heroku
-
-Click the Deploy to Heroku button at the top or use the command line commands below.
-
-Create a new NodeJS Heroku app:
-
-```shell
-heroku create [APP_NAME]
-```
-
-Push code to Heroku servers:
-
-```shell
-git push heroku master
-```
-
-Open Heroku app in browser:
-
-```shell
-heroku open
-```
-
-Or go directly via <http://APP_NAME.herokuapp.com>
-
-View/stream server logs:
-
-```shell
-heroku logs --tail
-```
-
-## Deploying to [Zeit](https://zeit.co/)
-
-Install the now cli and sign up for a [zeit account](https://zeit.co/docs/v1/getting-started/introduction-to-now/).
-
-Deploying is simply:
-
-```shell
-now
-```
+## Resources
+* [Battlesnake Homepage](https://www.battlesnake.io/)
+* [Battlesnake 2019 API](http://docs.battlesnake.io/snake-api.html)
+* [Battlesnake Docs](http://docs.battlesnake.io)
