@@ -1,0 +1,4 @@
+
+const closestFood = (board, self) => {
+  
+}
