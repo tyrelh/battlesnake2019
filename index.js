@@ -9,6 +9,8 @@ const {
   poweredByHandler
 } = require("./handlers.js");
 
+const main = require("./app/main");
+
 // For deployment to Heroku, the port needs to be set using ENV, so
 // we check for the port number in process.env
 app.set("port", process.env.PORT || 9001);
@@ -23,32 +25,18 @@ app.use(poweredByHandler);
 
 // Handle POST request to '/start'
 app.post("/start", (req, res) => {
-  // NOTE: Do something here to start the game
-
-  // Response data
-  const data = {
-    color: "#11DFFF"
-  };
-
-  return res.json(data);
+  return main.start(req, res);
 });
 
 // Handle POST request to '/move'
 app.post("/move", (req, res) => {
   // NOTE: Do something here to generate your move
-  console.log(req.body);
-
-  // Response data
-  const data = {
-    move: "left" // one of: ['up','down','left','right']
-  };
-
-  return res.json(data);
+  return main.move(req, res);
 });
 
 app.post("/end", (req, res) => {
   // NOTE: Any cleanup when a game is complete.
-  return res.json({});
+  return main.end(req, res);
 });
 
 app.post("/ping", (_, res) => {

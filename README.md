@@ -6,7 +6,7 @@ This is my entry for this years [Battlesnake](https://www.battlesnake.io) progra
 Forked from the [NodeJS starter snake](https://github.com/battlesnakeio/starter-snake-node) provided by the [Battlesnake community](https://github.com/battlesnakeio/community).
 
 ## State of AI
-TODO
+* **Sun Jan 20**: Inital port of algorithms from my last year Python entry. Basic food finding using A* pathfinding. Is only seeking closest food rather than closest accessable food which leads to unnessesary deaths. 
 
 ## Running the snake locally
 Follow the directions given at the [original repo](https://github.com/battlesnakeio/starter-snake-node) for running the snake locally and for deploying to Heroku.
