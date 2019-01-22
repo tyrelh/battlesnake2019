@@ -1,17 +1,19 @@
 module.exports = {
   // board spaces
-  SPACE: 0,
-  TAIL: 1,
-  FOOD: 2,
-  KILL_ZONE: 3,
-  DANGER: 4,
-  SNAKE_BODY: 5,
-  ENEMY_HEAD: 6,
+  KILL_ZONE: 0,
+  SPACE: 1,
+  TAIL: 2,
+  FOOD: 3,
+  WARNING: 4,
+  DANGER: 5,
+  SNAKE_BODY: 6,
+  ENEMY_HEAD: 7,
   TYPE: [
+    "KILL_ZONE",
     "SPACE",
     "TAIL",
     "FOOD",
-    "KILL_ZONE",
+    "WARNING",
     "DANGER",
     "SNAKE_BODY",
     "ENEMY_HEAD"

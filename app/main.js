@@ -2,18 +2,28 @@ const k = require("./keys");
 const g = require("./grid");
 const m = require("./move");
 
+const DEBUG = true;
+const STATUS = true;
+
 module.exports = {
   // called for every move
   move: (req, res) => {
-    const board = req.body.board;
-    const self = req.body.you
-    const grid = g.buildGrid(board, self);
-    const move = m.hungry(grid, req.body);
+    const data = req.body;
+    if (STATUS) console.log("\n\n##### MOVE " + data.turn + "\n");
+
+    const grid = g.buildGrid(data);
+    let move;
+    try {
+      move = m.hungry(grid, data);
+    } catch (e) {
+      console.log("ex in m.hungry: " + e);
+    }
     return res.json({ move: move ? k.DIRECTION[move] : k.DIRECTION[k.UP] });
   },
 
   // called once at beginning of game
   start: (req, res) => {
+    if (STATUS) console.log("\n\n\n\n##### STARTING GAME #####\n\n\n");
     // const data = req.body;
     // let grid = g.buildGrid(data.board);
     // g.printGrid(grid);

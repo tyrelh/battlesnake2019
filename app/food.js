@@ -22,7 +22,7 @@ const closestTarget = (grid, self, targetType) => {
           closestTarget = target;
           closestDistance = distance;
         }
-        console.log("found a food in closestTarget");
+        // console.log("found a food in closestTarget");
       }
     }
   }
