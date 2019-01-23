@@ -8,15 +8,28 @@ const STATUS = true;
 module.exports = {
   // called for every move
   move: (req, res) => {
+    let date, startTime, endTime
+    if (STATUS) {
+      date = new Date();
+      startTime = date.getMilliseconds();
+    }
+
     const data = req.body;
+
     if (STATUS) console.log("\n\n##### MOVE " + data.turn + "\n");
 
     const grid = g.buildGrid(data);
+    
     let move;
     try {
       move = m.hungry(grid, data);
     } catch (e) {
       console.log("ex in m.hungry: " + e);
+    }
+
+    if (STATUS) {
+      let endTime = date.getMilliseconds();
+      console.log("Move took " + (endTime - startTime) + "ms.");
     }
     return res.json({ move: move ? k.DIRECTION[move] : k.DIRECTION[k.UP] });
   },
