@@ -8,7 +8,6 @@ const {
   genericErrorHandler,
   poweredByHandler
 } = require("./handlers.js");
-
 const main = require("./app/main");
 
 // For deployment to Heroku, the port needs to be set using ENV, so
@@ -21,30 +20,25 @@ app.use(logger("dev"));
 app.use(bodyParser.json());
 app.use(poweredByHandler);
 
-// --- SNAKE LOGIC GOES BELOW THIS LINE ---
+// Used for checking if this snake is still alive.
+app.post("/ping", (_, res) => {
+  return res.json({});
+});
 
-// Handle POST request to '/start'
+// Signals start of a new game
 app.post("/start", (req, res) => {
   return main.start(req, res);
 });
 
-// Handle POST request to '/move'
+// Each move request
 app.post("/move", (req, res) => {
-  // NOTE: Do something here to generate your move
   return main.move(req, res);
 });
 
+// Signals death or win. End of game for you
 app.post("/end", (req, res) => {
-  // NOTE: Any cleanup when a game is complete.
   return main.end(req, res);
 });
-
-app.post("/ping", (_, res) => {
-  // Used for checking if this snake is still alive.
-  return res.json({});
-});
-
-// --- SNAKE LOGIC GOES ABOVE THIS LINE ---
 
 app.use("*", fallbackHandler);
 app.use(notFoundHandler);
