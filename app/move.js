@@ -2,6 +2,7 @@ const k = require("./keys");
 const g = require("./grid");
 const f = require("./food");
 const s = require("./self");
+const search = require("./search")
 
 const INITIAL_FEEDING = 3;
 
@@ -10,43 +11,66 @@ const STATUS = true;
 const LOG_ASTAR_GRID = false;
 
 // scores for moves
-const ASTAR_SUCCESS = 10.0;
+const ASTAR_SUCCESS = 8.0; // DOWN from 10
 const ASTAR_ALT = 2.0;
 const BASE_KILL_ZONE = 2.1;
 const BASE_FOOD = 0.5;
-const BASE_TAIL = 0.35;
+const BASE_TAIL = 7.9; // UP from 0.35
 const BASE_SPACE = 0.3;
 const BASE_WARNING = 0.2;
-const BASE_DANGER = 0.2;
-const BASE_BAD = -10.0
+const BASE_DANGER = 0.1;
+const BASE_ENEMY_HEAD = -2;
+const BASE_BAD = -10.0;
+const BASE_PREVIOUS = 0.1; // DOWN from 2
+
+let previousMove = 0;
+
 
 const hungry = (grid, data) => {
-  const target = f.closestFood(grid, data.you.body[0]);
+  let self = data.you;
+  let tail = self.body[self.body.length - 1];
+  let target;
+  try {
+    target = f.closestFood(grid, self.body[0]);
+    if (!target) {
+      target = tail;
+    }
+  } catch (e) {
+    console.log("!!!!!!!! ex in hungry.closestFood " + e);
+  }
   console.log("target in hungry: " + pairToString(target));
 
   let scores = [];
   try {
-    scores = baseMoveScores(grid, data.you);
+    scores = baseMoveScores(grid, self);
   } catch (e) {
     console.log("ex in hungry.baseMoveScores: " + e);
   }
 
-  console.log("scores: " + scores);
 
   let move = null;
   try {
     move = astar(grid, data, target, k.FOOD);
+
   } catch (e) {
     console.log("ex in hungry.a*: " + e);
+  }
+
+  try {
+    for (let m = 0; m < scores.length; m++) {
+      scores[m] += fill(m, grid, self);
+    }
+  } catch (e) {
+    console.log("ex in hungry.fill " + e);
   }
 
   let altMove = null;
   try {
     if (move) {
-      if (validMove(move, data.you.body[0], grid)) {
+      if (validMove(move, self.body[0], grid)) {
         scores[move] += ASTAR_SUCCESS;
       } else {
-        altMove = suggestMove(move, data.you.body[0], grid);
+        altMove = suggestMove(move, self.body[0], grid);
         if (altMove) scores[altMove] += ASTAR_ALT;
       }
     }
@@ -54,14 +78,21 @@ const hungry = (grid, data) => {
     console.log("ex in hungry.move check: " + e);
   }
 
+  if (previousMove != null) {
+    scores[previousMove] += BASE_PREVIOUS;
+  }
+  if (STATUS) console.log("MOVE SCORES: " + scores);
   const bestMove = highestScoreMove(scores);
-  console.log("hungry move: " + k.DIRECTION[bestMove]);
+  previousMove = bestMove;
+  // console.log("hungry move: " + k.DIRECTION[bestMove]);
   return bestMove;
 };
+
 
 const angry = (grid, data) => {
   return astar(grid, data, f.closestKillableEnemy(grid, data.you), k.KILL_ZONE);
 };
+
 
 // get highest score move
 const highestScoreMove = scores => {
@@ -76,6 +107,7 @@ const highestScoreMove = scores => {
   return bestMove;
 }
 
+
 // get base score for each possible move
 const baseMoveScores = (grid, self) => {
   const head = self.body[0];
@@ -87,6 +119,7 @@ const baseMoveScores = (grid, self) => {
   scores[k.RIGHT] += baseScoreForBoardPosition(head.x + 1, head.y, grid);
   return scores;
 };
+
 
 // return a base score depending on what is currently in that position on the board
 const baseScoreForBoardPosition = (x, y, grid) => {
@@ -111,6 +144,120 @@ const baseScoreForBoardPosition = (x, y, grid) => {
       return BASE_BAD;
   }
 };
+
+
+// fill an area
+const fill = (direction, grid, self) => {
+  // console.log(grid ? "grid is defined in fill" : "grid is UNDEFINED in fill");
+  let closedGrid;
+  let openGrid;
+  closedGrid = g.initGrid(grid[0].length, grid.length, false);
+  openGrid = g.initGrid(grid[0].length, grid.length, false);
+  // console.log(closedGrid ? "closedGrid is defined in fill" : "closedGrid is UNDEFINED in fill");
+  // console.log(openGrid ? "openGrid is defined in fill" : "openGrid is UNDEFINED in fill");
+  let openStack = [];
+  const inGrid = (pos, grd) => {
+    // console.log("pair in inGrid");
+    // console.log(pairToString(pos));
+    try {
+      return grd[pos.y][pos.x];
+    } catch (e) {
+      console.log("!!! ex in fill.inGrid " + e);
+    }
+  }
+  const addToOpen = pos => {
+    try {
+      if (!outOfBounds(pos, grid) && !inGrid(pos, closedGrid) && !inGrid(pos, openGrid)) {
+        if (inGrid(pos, grid) <= k.DANGER) {
+          openStack.push(pos);
+          openGrid[pos.y][pos.x] = true;
+        }
+      }
+    } catch (e) {
+      console.log("!!! ex in fill.addToOpen " + e);
+    }
+  };
+  const removeFromOpen = () => {
+    let pos;
+    try {
+      pos = openStack.pop();
+      if (!pos) return false;
+      openGrid[pos.y][pos.x] = false;
+      return pos;
+      } catch (e) {
+        console.log("!!! ex in fill.removeFromOpen " + e);
+      }
+  };
+  const addToClosed = pos => {
+    closedGrid[pos.y][pos.x] = true; 
+  };
+  let size = self.body.length;
+  let current = self.body[0];
+  let givenMovePos = {x: current.x, y: current.y};
+  switch(direction) {
+    case k.UP:
+      givenMovePos.y -= 1;
+      break;
+    case k.DOWN:
+      givenMovePos.y += 1;
+      break;
+    case k.LEFT:
+      givenMovePos.x -= 1;
+      break;
+    case k.RIGHT:
+      givenMovePos.x += 1;
+  }
+  addToOpen(givenMovePos);
+  addToClosed(current);
+  // things to track for this move
+  let area = 0;
+  let enemyHeads = 0;
+  let killZones = 0;
+  let tails = 0;
+  let foods = 0;
+  // iterate over all possible moves given current move
+  while (openStack.length > 0) {
+    const nextMove = removeFromOpen();
+    addToClosed(nextMove);
+    switch(inGrid(nextMove, grid)) {
+      case k.ENEMY_HEAD:
+        enemyHeads++;
+        break;
+      case k.TAIL:
+        tails++;
+        break;
+      case k.KILL_ZONE:
+        killZones++;
+        break;
+      case k.FOOD:
+        foods++;
+        break;
+      default:
+    }
+    area++;
+    // check up
+    const nUp = {x: nextMove.x, y: nextMove.y - 1};
+    addToOpen(nUp);
+    // check down
+    const nDown = {x: nextMove.x, y: nextMove.y + 1};
+    addToOpen(nDown);
+    // check left
+    const nLeft = {x: nextMove.x - 1, y: nextMove.y};
+    addToOpen(nLeft);
+    // check right
+    const nRight = {x: nextMove.x + 1, y: nextMove.y};
+    addToOpen(nRight);
+  }
+  let score = 0;
+  score += area * BASE_SPACE;
+  score += tails * BASE_TAIL;
+  score += foods * BASE_FOOD;
+  score += enemyHeads * BASE_ENEMY_HEAD;
+  score += killZones * BASE_KILL_ZONE;
+  if (DEBUG) console.log("score in fill: " + score + " for move " + k.DIRECTION[direction]);
+  return score;
+}
+
 
 // a* pathfinding algorithm that will find the shortest path from current head
 // location to a given destination
@@ -146,7 +293,6 @@ const astar = (grid, data, destination, mode = k.FOOD) => {
     });
     // check if found destination
     if (sameCell(lowestCell, destination)) {
-      // TODO: HAVENT HIT THIS PATH IN DEBUGGING
       if (STATUS) console.log("FOUND A PATH");
       if (LOG_ASTAR_GRID) {
         console.log("astar grid after search success:");
@@ -173,7 +319,6 @@ const astar = (grid, data, destination, mode = k.FOOD) => {
     );
     closedSet.push(current);
     // check every viable neighbor to current cell
-    // TODO: CURRENTLY HERE IN DEBUGGING
     // searchScores[current.y][current.x].neighbors.forEach(neighbor => {
     const currentNeighbors = searchScores[current.y][current.x].neighbors;
     for (let n = 0; n < currentNeighbors.length; n++) {
@@ -238,8 +383,10 @@ const astar = (grid, data, destination, mode = k.FOOD) => {
   }
 };
 
+
 // test if cells are the same
 const sameCell = (a, b) => a.x === b.x && a.y === b.y;
+
 
 // check if array contains a given pair
 const arrayIncludesPair = (arr, pair) => {
@@ -248,6 +395,7 @@ const arrayIncludesPair = (arr, pair) => {
   }
   return false;
 };
+
 
 // calculate direction from a to b
 const calcDirection = (a, b, grid) => {
@@ -270,6 +418,7 @@ const calcDirection = (a, b, grid) => {
   // }
   return direction;
 };
+
 
 // check if move is not fatal
 const validMove = (direction, pos, grid) => {
@@ -295,43 +444,57 @@ const validMove = (direction, pos, grid) => {
   }
 };
 
+
 // if move is no good, suggest a similar move that is valid
 const suggestMove = (direction, pos, grid) => {
-  // TODO: build suggestMove()
-  switch (direction) {
-    // if up, check right, left, down
-    case k.UP:
-      if (validMove(k.RIGHT, pos, grid)) return k.RIGHT;
-      else if (validMove(k.LEFT, pos, grid)) return k.LEFT;
-      else if (validMove(k.DOWN, pos, grid)) return k.DOWN;
-      return null;
-    // if down, check left, right, up
-    case k.DOWN:
-      if (validMove(k.LEFT, pos, grid)) return k.LEFT;
-      else if (validMove(k.RIGHT, pos, grid)) return k.RIGHT;
-      else if (validMove(k.UP, pos, grid)) return k.UP;
-      return null;
-    // if left, check up, down, right
-    case k.LEFT:
-      if (validMove(k.UP, pos, grid)) return k.UP;
-      else if (validMove(k.DOWN, pos, grid)) return k.DOWN;
-      else if (validMove(k.RIGHT, pos, grid)) return k.RIGHT;
-      return null;
-    // if right, check down, up, left
-    case k.RIGHT:
-      if (validMove(k.DOWN, pos, grid)) return k.DOWN;
-      else if (validMove(k.UP, pos, grid)) return k.UP;
-      else if (validMove(k.LEFT, pos, grid)) return k.LEFT;
-      return null;
+  try {
+    switch (direction) {
+      // if up, check right, left, down
+      case k.UP:
+        if (validMove(k.RIGHT, pos, grid)) return k.RIGHT;
+        else if (validMove(k.LEFT, pos, grid)) return k.LEFT;
+        else if (validMove(k.DOWN, pos, grid)) return k.DOWN;
+        return null;
+      // if down, check left, right, up
+      case k.DOWN:
+        if (validMove(k.LEFT, pos, grid)) return k.LEFT;
+        else if (validMove(k.RIGHT, pos, grid)) return k.RIGHT;
+        else if (validMove(k.UP, pos, grid)) return k.UP;
+        return null;
+      // if left, check up, down, right
+      case k.LEFT:
+        if (validMove(k.UP, pos, grid)) return k.UP;
+        else if (validMove(k.DOWN, pos, grid)) return k.DOWN;
+        else if (validMove(k.RIGHT, pos, grid)) return k.RIGHT;
+        return null;
+      // if right, check down, up, left
+      case k.RIGHT:
+        if (validMove(k.DOWN, pos, grid)) return k.DOWN;
+        else if (validMove(k.UP, pos, grid)) return k.UP;
+        else if (validMove(k.LEFT, pos, grid)) return k.LEFT;
+        return null;
+    }
+  } catch(e) {
+    console.log("!!! ex in suggestMove " + e);
   }
   return null;
 };
 
+
 // check if space is out of bounds
 const outOfBounds = ({ x, y }, grid) => {
-  if (x < 0 || y < 0 || y >= grid.length || x >= grid[0].length) return true;
-  return false;
+  try {
+    if (x < 0 || y < 0 || y >= grid.length || x >= grid[0].length) {
+      return true
+    } else {
+      return false
+    }
+  } catch (e) {
+    console.log("!!! ex in outOfBounds " + e);
+    return true
+  }
 };
+
 
 // construct a parallel search grid to store a* scores
 const buildAstarGrid = grid => {
@@ -344,6 +507,7 @@ const buildAstarGrid = grid => {
   }
   return astarGrid;
 };
+
 
 // print search grid f scores
 const printFScores = astarGrid => {
@@ -358,6 +522,7 @@ const printFScores = astarGrid => {
     console.log(row);
   }
 };
+
 
 // cell of search grid to store a* scores
 class Cell {
@@ -377,11 +542,17 @@ class Cell {
   }
 }
 
+
 // return pair as string
 const pairToString = pair => {
-  const s = ["{x: ", ", y: ", "}"];
-  return s[0] + pair.x + s[1] + pair.y + s[2];
+  try {
+    const s = ["{x: ", ", y: ", "}"];
+    return s[0] + pair.x + s[1] + pair.y + s[2];
+  } catch (e) {
+    console.log("!!! ex in m.pairToString " + e);
+  }
 };
+
 
 module.exports = {
   astar: astar,

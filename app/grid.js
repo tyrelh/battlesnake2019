@@ -1,6 +1,6 @@
 const k = require("./keys");
 
-const DEBUG = true;
+const DEBUG = false;
 const STATUS = false;
 
 const buildGrid = data => {
@@ -8,10 +8,7 @@ const buildGrid = data => {
   const self = data.you;
 
   // initailize grid to SPACEs
-  let grid = new Array(board.height);
-  for (let i = 0; i < grid.length; i++) {
-    grid[i] = new Array(board.width).fill(k.SPACE);
-  }
+  let grid = initGrid(board.width, board.height, k.SPACE);
 
   try {
     // mark edges WARNING
@@ -24,13 +21,8 @@ const buildGrid = data => {
       grid[board.height - 1][x] = k.WARNING;
     }
   } catch (e) {
-    console.log("ex in edges marking buildGrid() " + e);
+    console.log("!!! ex in edges marking buildGrid() " + e);
   }
-
-  // fill FOOD locations
-  board.food.forEach(({ x, y }) => {
-    grid[y][x] = k.FOOD;
-  });
 
   try {
     // mark corners DANGER
@@ -39,8 +31,13 @@ const buildGrid = data => {
     grid[board.height - 1][0] = k.DANGER;
     grid[board.height - 1][board.width - 1] = k.DANGER;
   } catch (e) {
-    console.log("ex in corners marking buildGrid() " + e);
+    console.log("!!! ex in corners marking buildGrid() " + e);
   }
+
+  // fill FOOD locations
+  board.food.forEach(({ x, y }) => {
+    grid[y][x] = k.FOOD;
+  });
 
   // fill snake locations
   board.snakes.forEach(({ id, name, health, body }) => {
@@ -50,12 +47,13 @@ const buildGrid = data => {
     });
 
     // check if tail can be TAIL or SNAKE_BODY
-    // TODO: figure out new way to check tail, head is being added on eat, not tail
-    // const tail = body[body.length - 1];
-    // const bodySeg = body[body.length - 2];
-    // if (tail.x != bodySeg.x || tail.y != bodySeg.y) {
-    //   grid[tail.y][tail.x] = k.TAIL;
-    // }
+    const last = body[body.length - 1];
+    const sLast = body[body.length - 2]
+    if (health === 100 || sameCell(last, sLast)) {
+      grid[last.y][last.x] = k.SNAKE_BODY;
+    } else {
+      grid[last.y][last.x] = k.TAIL;
+    }
 
     // skip filling own head and DANGER
     if (id === self.id) return;
@@ -104,14 +102,35 @@ const printGrid = grid => {
   }
 };
 
+// create a grid filled with a given value
+const initGrid = (width, height, fillValue) => {
+  let grid;
+  try {
+    grid = new Array(height);
+    for (let i = 0; i < height; i++) {
+      grid[i] = new Array(width);
+      for (let j = 0; j < width; j++) {
+        grid[i][j] = fillValue;
+      }
+    }
+  } catch (e) {
+    console.log("!!! ex in initGrid " + e);
+  }
+  return grid;
+}
+
 const mapGridSpaceToChar = space => {
   // KILL_ZONE: 0, SPACE: 1, TAIL: 2, FOOD: 3, WARNING: 4, DANGER: 5, SNAKE_BODY: 6, ENEMY_HEAD: 7
   const chars = ["!", " ", "T", "O", "x", "X", "S", "H", "@"]
   return chars[space]
 }
 
+// test if cells are the same
+const sameCell = (a, b) => a.x === b.x && a.y === b.y;
+
 module.exports = {
   getDistance: getDistance,
   buildGrid: buildGrid,
-  printGrid: printGrid
+  printGrid: printGrid,
+  initGrid: initGrid
 };

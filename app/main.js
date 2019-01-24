@@ -5,21 +5,24 @@ const m = require("./move");
 const DEBUG = true;
 const STATUS = true;
 
+let slowest = 0;
+let slowestMove = 0;
+
 module.exports = {
   // called for every move
   move: (req, res) => {
-    let date, startTime, endTime
+    let startTime;
     if (STATUS) {
-      date = new Date();
+      let date = new Date();
       startTime = date.getMilliseconds();
     }
 
     const data = req.body;
 
-    if (STATUS) console.log("\n\n##### MOVE " + data.turn + "\n");
+    if (STATUS) console.log("\n######################################### MOVE " + data.turn + "\n");
 
     const grid = g.buildGrid(data);
-    
+
     let move;
     try {
       move = m.hungry(grid, data);
@@ -28,8 +31,14 @@ module.exports = {
     }
 
     if (STATUS) {
-      let endTime = date.getMilliseconds();
-      console.log("Move took " + (endTime - startTime) + "ms.");
+      let date2 = new Date();
+      let endTime = date2.getMilliseconds();
+      if (endTime - startTime > slowest) {
+        slowest = endTime - startTime;
+        slowestMove = data.turn;
+      }
+      console.log("MOVE " + data.turn + " TOOK " + (endTime - startTime) + "ms.");
+      console.log("SLOWEST MOVE " + slowestMove + " TOOK " + slowest + "ms.");
     }
     return res.json({ move: move ? k.DIRECTION[move] : k.DIRECTION[k.UP] });
   },
@@ -37,6 +46,8 @@ module.exports = {
   // called once at beginning of game
   start: (req, res) => {
     if (STATUS) console.log("\n\n\n\n##### STARTING GAME #####\n\n\n");
+    slowest = 0;
+    slowestMove = 0;
     // const data = req.body;
     // let grid = g.buildGrid(data.board);
     // g.printGrid(grid);
