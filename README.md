@@ -13,6 +13,8 @@ Forked from the [NodeJS starter snake](https://github.com/battlesnakeio/starter-
 ## Running the snake locally
 Follow the directions given at the [original repo](https://github.com/battlesnakeio/starter-snake-node) for running the snake locally and for deploying to Heroku.
 
+[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
+
 ## Resources
 * [Battlesnake Homepage](https://www.battlesnake.io/)
 * [Battlesnake 2019 API](http://docs.battlesnake.io/snake-api.html)
