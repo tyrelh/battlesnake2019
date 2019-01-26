@@ -1,10 +1,10 @@
 {
-  "name": "battlesnake-node",
-  "description": "A simple BattleSnake AI written in Javascript for NodeJS",
+  "name": "zeroCool",
+  "description": "A Battlesnake 2019 AI written in NodeJS",
   "version": "0.0.0",
   "private": true,
-  "author": "Sendwithus",
-  "repository": "https://github.com/sendwithus/battlesnake-node",
+  "author": "Tyrel Hiebert",
+  "repository": "https://github.com/tyrelh/battlesnake2019",
   "licenses": [
     {
       "type": "WTFPL",

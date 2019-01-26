@@ -1,7 +1,7 @@
 {
-  "name": "starter-snake-node",
-  "description": "NodeJS starter snake",
-  "repository": "http://github.com/battlesnakeio/starter-snake-node",
-  "logo": "http://node-js-sample.herokuapp.com/node.svg",
-  "keywords": []
+  "name": "zeroCool",
+  "description": "A Battlesnake 2019 AI written in NodeJS",
+  "repository": "https://github.com/tyrelh/battlesnake2019",
+  "logo": "https://tyrelh.github.io/img/snake_profile.png",
+  "keywords": ["battlesnake", "battlesnake.io", "ai"]
 }
