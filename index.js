@@ -19,6 +19,8 @@ app.enable("verbose errors");
 app.use(logger("dev"));
 app.use(bodyParser.json());
 app.use(poweredByHandler);
+// serve static log files at /logs
+app.use("/logs", express.static(__dirname + '/logs'));
 
 // Used for checking if this snake is still alive.
 app.post("/ping", (_, res) => {

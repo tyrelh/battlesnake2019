@@ -1,3 +1,4 @@
+const fs = require("fs");
 /**
  * Don't worry about anything in this file,
  * focus on writing your snake logic in index.js endpoints.
@@ -13,10 +14,8 @@ const fallbackHandler = (req, res, next) => {
   // Root URL path
   if (req.baseUrl === '') {
     res.status(200)
-    return res.send(`
-      Battlesnake documentation can be found at
-       <a href="https://docs.battlesnake.io">https://docs.battlesnake.io</a>.
-    `)
+    let content = fs.readFileSync(`${__dirname}/logs/index.html`, "utf8");
+    return res.send(content)
   }
 
   // Short-circuit favicon requests
