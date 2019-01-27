@@ -1,5 +1,6 @@
 const k = require("./keys");
 const g = require("./grid");
+const log = require("./logger")
 
 const closestFood = (grid, self) => {
   return closestTarget(grid, self, k.FOOD);
@@ -28,7 +29,7 @@ const closestTarget = (grid, self, targetType) => {
     }
     return closestTarget;
   }
-  catch (e) { console.log("!!! ex in f.closestTarget " + e); }
+  catch (e) { log.error(`ex in target.closestTarget " + ${e}`); }
   return null
 }
 

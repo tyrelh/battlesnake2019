@@ -4,6 +4,7 @@ const t = require("./target");
 const s = require("./self");
 const p = require("./params");
 const search = require("./search")
+const log = require("./logger");
 
 const DEBUG = true;
 const STATUS = true;
@@ -11,7 +12,9 @@ const STATUS = true;
 let previousMove = 0;
 
 
+// target closest reachable food
 const eat = (grid, data) => {
+  if (STATUS) log.status("EATING");
   let self = data.you;
   let target = null;
   let move = null;
@@ -21,16 +24,16 @@ const eat = (grid, data) => {
     while (move === null) {
       grid[target.y][target.x] = k.SPACE;
       target = t.closestFood(grid, self.body[0]);
-      if (DEBUG) console.log(pairToString(target));
+      if (DEBUG) log.debug(pairToString(target));
       if (target === null) {
-        move = k.UP;
+        move = suggestMove(k.RIGHT, self.body[0], grid);
         break;
       }
       move = search.astar(grid, data, target, k.FOOD);
     }
   }
-  catch (e) { console.log(`!!! ex in move.eat: ${e}`); }
-  if (DEBUG) console.log(`target in eat: ${pairToString(target)}`);
+  catch (e) { log.error(`ex in move.eat: ${e}`); }
+  if (DEBUG) log.debug(`target in eat: ${pairToString(target)}`);
 
   return buildMove(grid, data, move);
 };
@@ -38,6 +41,7 @@ const eat = (grid, data) => {
 
 // track closest KILL_ZONE
 const hunt = (grid, data) => {
+  if (STATUS) log.status("HUNTING");
   let self = data.you;
   let target = null;
   let move = null;
@@ -47,16 +51,16 @@ const hunt = (grid, data) => {
     while (move === null) {
       grid[target.y][target.x] = k.SPACE;
       target = t.closestKillableEnemy(grid, self.body[0]);
-      if (DEBUG) console.log(pairToString(target));
+      if (DEBUG) log.debug(pairToString(target));
       if (target === null) {
-        move = k.UP;
+        move = suggestMove(k.RIGHT, self.body[0], grid);
         break;
       }
       move = search.astar(grid, data, target, k.KILL_ZONE);
     }
   }
-  catch (e) { console.log(`!!! ex in move.hunt: ${e}`); }
-  if (DEBUG) console.log(`target in move.hunt: ${pairToString(target)}`);
+  catch (e) { log.error(`ex in move.hunt: ${e}`); }
+  if (DEBUG) log.debug(`target in move.hunt: ${pairToString(target)}`);
 
   return buildMove(grid, data, move)
 };
@@ -64,6 +68,7 @@ const hunt = (grid, data) => {
 
 // track own tail
 const killTime = (grid, data) => {
+  if (STATUS) log.status("KILLING TIME");
   let move = k.UP;
   const self = data.you;
   let len = self.body.length
@@ -72,7 +77,7 @@ const killTime = (grid, data) => {
     move = search.astar(grid, data, target, k.TAIL);
     if (move === null) move = suggestMove(k.RIGHT, self.body[0], grid);
   }
-  catch (e) { console.log(`!!! ex in move.killTime: ${e}`); }
+  catch (e) { log.error(`ex in move.killTime: ${e}`); }
   return buildMove(grid, data, move);
 }
 
@@ -84,19 +89,19 @@ const buildMove = (grid, data, move) => {
     scores = baseMoveScores(grid, self);
     scores[move] += p.ASTAR_SUCCESS;
    }
-  catch (e) { console.log(`!!! ex in buildMove.baseMoveScores: ${e}`); }
+  catch (e) { log.error(`ex in buildMove.baseMoveScores: ${e}`); }
   
   try {
     for (let m = 0; m < scores.length; m++) {
       scores[m] += search.fill(m, grid, data);
     }
   }
-  catch (e) { console.log(`!!! ex in buildMove.fill: ${e}`); }
+  catch (e) { log.error(`ex in buildMove.fill: ${e}`); }
 
   if (previousMove != null) {
     scores[previousMove] += p.BASE_PREVIOUS;
   }
-  if (STATUS) console.log(`MOVE SCORES: ${scores}`);
+  if (STATUS) log.status(`Move scores: ${scoresToString(scores)}`);
   const bestMove = highestScoreMove(scores);
   previousMove = bestMove;
   return bestMove
@@ -133,7 +138,7 @@ const baseMoveScores = (grid, self) => {
 // return a base score depending on what is currently in that position on the board
 const baseScoreForBoardPosition = (x, y, grid) => {
   // if out of bounds
-  if (search.outOfBounds({ x: x, y: y }, grid)) return -10.0;
+  if (search.outOfBounds({ x: x, y: y }, grid)) return p.BASE_BAD;
   // types of spaces
   switch (grid[y][x]) {
     case k.SPACE:
@@ -157,8 +162,8 @@ const baseScoreForBoardPosition = (x, y, grid) => {
 
 // check if move is not fatal
 const validMove = (direction, pos, grid) => {
-  if (search.outOfBounds(pos, grid)) return false;
   try {
+    if (search.outOfBounds(pos, grid)) return false;
     switch (direction) {
       case k.UP:
         return grid[pos.y - 1][pos.x] <= k.DANGER;
@@ -170,13 +175,8 @@ const validMove = (direction, pos, grid) => {
         return grid[pos.y][pos.x + 1] <= k.DANGER;
     }
     return false;
-  } catch (ex) {
-    // catch any mistake null pointers
-    if (STATUS || DEBUG)
-      console.log(
-        "*** EXCEPTION ***\nINVALID MOVE PASSED TO m.validMove()\n" + ex
-      );
   }
+  catch (e) { log.error(`ex in move.validMove: ${e}`); }
 };
 
 
@@ -189,42 +189,46 @@ const suggestMove = (direction, pos, grid) => {
         if (validMove(k.RIGHT, pos, grid)) return k.RIGHT;
         else if (validMove(k.LEFT, pos, grid)) return k.LEFT;
         else if (validMove(k.DOWN, pos, grid)) return k.DOWN;
-        return null;
+        return direction;
       // if down, check left, right, up
       case k.DOWN:
         if (validMove(k.LEFT, pos, grid)) return k.LEFT;
         else if (validMove(k.RIGHT, pos, grid)) return k.RIGHT;
         else if (validMove(k.UP, pos, grid)) return k.UP;
-        return null;
+        return direction;
       // if left, check up, down, right
       case k.LEFT:
         if (validMove(k.UP, pos, grid)) return k.UP;
         else if (validMove(k.DOWN, pos, grid)) return k.DOWN;
         else if (validMove(k.RIGHT, pos, grid)) return k.RIGHT;
-        return null;
+        return direction;
       // if right, check down, up, left
       case k.RIGHT:
         if (validMove(k.DOWN, pos, grid)) return k.DOWN;
         else if (validMove(k.UP, pos, grid)) return k.UP;
         else if (validMove(k.LEFT, pos, grid)) return k.LEFT;
-        return null;
+        return direction;
     }
-  } catch(e) {
-    console.log("!!! ex in suggestMove " + e);
   }
-  return null;
+  catch(e) { log.error(`ex in move.suggestMove: ${e}`); }
+  return direction;
 };
 
 
 // return pair as string
 const pairToString = pair => {
-  try {
-    const s = ["{x: ", ", y: ", "}"];
-    return s[0] + pair.x + s[1] + pair.y + s[2];
-  } catch (e) {
-    console.log("!!! ex in m.pairToString " + e);
-  }
+  try { return `{x: ${pair.x}, y: ${pair.y}}`; }
+  catch (e) { log.error(`ex in move.pairToString: ${e}`); }
 };
+
+
+// return scores array in a human readable string
+const scoresToString = scores => {
+  try {
+    return `{up: ${scores[0]}, down: ${scores[1]}, left: ${scores[2]}, right: ${scores[3]}}`
+  }
+  catch (e) { log.error(`ex in move.scoresToString: ${e}`); }
+}
 
 
 module.exports = {

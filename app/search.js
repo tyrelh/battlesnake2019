@@ -3,6 +3,7 @@ const g = require("./grid");
 const t = require("./target");
 const s = require("./self");
 const p = require("./params");
+const log = require("./logger");
 
 const DEBUG = false;
 const STATUS = true;
@@ -18,11 +19,8 @@ const fill = (direction, grid, { you }) => {
   let openStack = [];
 
   const inGrid = (pos, grd) => {
-    try {
-      return grd[pos.y][pos.x];
-    } catch (e) {
-      console.log("!!! ex in fill.inGrid " + e);
-    }
+    try { return grd[pos.y][pos.x]; }
+    catch (e) { log.error(`ex in search.fill.inGrid: ${e}`); }
   };
 
   const addToOpen = pos => {
@@ -33,9 +31,8 @@ const fill = (direction, grid, { you }) => {
           openGrid[pos.y][pos.x] = true;
         }
       }
-    } catch (e) {
-      console.log("!!! ex in fill.addToOpen " + e);
     }
+    catch (e) { log.error(`ex in search.fill.addToOpen: ${e}`); }
   };
 
   const removeFromOpen = () => {
@@ -45,9 +42,8 @@ const fill = (direction, grid, { you }) => {
       if (!pos) return false;
       openGrid[pos.y][pos.x] = false;
       return pos;
-      } catch (e) {
-        console.log("!!! ex in fill.removeFromOpen " + e);
       }
+      catch (e) { log.error(`ex in search.fill.removeFromOpen: ${e}`); }
   };
 
   const addToClosed = pos => {
@@ -120,7 +116,7 @@ const fill = (direction, grid, { you }) => {
   score += foods * p.BASE_FOOD;
   score += enemyHeads * p.BASE_ENEMY_HEAD;
   score += killZones * p.BASE_KILL_ZONE;
-  if (DEBUG) console.log("score in fill: " + score + " for move " + k.DIRECTION[direction]);
+  if (DEBUG) log.debug(`Score in fill: ${score} for move ${k.DIRECTION[direction]}`);
   return score;
 }
 
@@ -128,7 +124,7 @@ const fill = (direction, grid, { you }) => {
 // a* pathfinding algorithm that will find the shortest path from current head
 // location to a given destination
 const astar = (grid, data, destination, mode = k.FOOD) => {
-  if (STATUS) console.log("CALCULATING PATH...");
+  if (STATUS) log.status("Calculating path (astar)...");
   // init search fields
   const searchScores = buildAstarGrid(grid);
   let openSet = [];
@@ -140,10 +136,7 @@ const astar = (grid, data, destination, mode = k.FOOD) => {
     destination = t.closestFood(grid, start);
     mode = k.FOOD;
   }
-  if (DEBUG)
-    console.log(
-      "astar destination: " + k.TYPE[mode] + ", " + pairToString(destination)
-    );
+  if (DEBUG) log.debug(`astar destination: ${k.TYPE[mode]}, ${pairToString(destination)}`);
   openSet.push(start);
   // while the open set is not empty keep searching
   while (openSet.length) {
@@ -159,21 +152,21 @@ const astar = (grid, data, destination, mode = k.FOOD) => {
     });
     // check if found destination
     if (sameCell(lowestCell, destination)) {
-      if (STATUS) console.log("FOUND A PATH");
+      if (STATUS) log.status("Found a path!");
       if (LOG_ASTAR_GRID) {
-        console.log("astar grid after search success:");
+        log.debug("astar grid after search success:");
         printFScores(astarGrid);
       }
       // re-trace path back to origin to find optimal next move
       let tempCell = lowestCell;
-      if (DEBUG) console.log("astar start pos: " + pairToString(start));
+      if (DEBUG) log.debug(`astar start pos: ${pairToString(start)}`);
       while (
         searchScores[tempCell.y][tempCell.x].previous.x != start.x ||
         searchScores[tempCell.y][tempCell.x].previous.y != start.y
       ) {
         tempCell = searchScores[tempCell.y][tempCell.x].previous;
       }
-      if (DEBUG) console.log("astar next move: " + pairToString(tempCell));
+      if (DEBUG) log.debug(`astar next move: ${pairToString(tempCell)}`);
       return calcDirection(start, tempCell);
     }
     // else continue searching
@@ -191,22 +184,22 @@ const astar = (grid, data, destination, mode = k.FOOD) => {
       const neighbor = currentNeighbors[n];
       let neighborCell = searchScores[neighbor.y][neighbor.x];
       if (sameCell(neighbor, destination)) {
-        if (STATUS) console.log("FOUND A PATH (neighbor)");
+        if (STATUS) log.status("Found a path (neighbor)");
         neighborCell.previous = current;
         if (LOG_ASTAR_GRID) {
-          console.log("astar grid after search success:");
+          log.debug("astar grid after search success:");
           printFScores(searchScores);
         }
         // re-trace path back to origin to find optimal next move
         let temp = neighbor;
-        if (DEBUG) console.log("astar start pos: " + pairToString(start));
+        if (DEBUG) log.debug(`astar start pos: ${pairToString(start)}`);
         while (
           searchScores[temp.y][temp.x].previous.x != start.x ||
           searchScores[temp.y][temp.x].previous.y != start.y
         ) {
           temp = searchScores[temp.y][temp.x].previous;
         }
-        if (DEBUG) console.log("astar next move: " + pairToString(temp));
+        if (DEBUG) log.debug(`astar next move: ${pairToString(start)}`);
         return calcDirection(start, temp);
       }
       // check if neighbor can be moved to
@@ -239,9 +232,9 @@ const astar = (grid, data, destination, mode = k.FOOD) => {
   }
   // if reach this point and open set is empty, no path
   if (!openSet.length) {
-    if (STATUS) console.log("COULD NOT FIND PATH!");
+    if (STATUS) log.status("COULD NOT FIND PATH!");
     if (LOG_ASTAR_GRID) {
-      console.log("astar grid after search failure:");
+      localStorage.debug("astar grid after search failure:");
       printFScores(searchScores);
     }
     // TODO: some a* redundancy?
@@ -297,7 +290,7 @@ const printFScores = astarGrid => {
           ? "  " + astarGrid[i][j].f
           : " " + astarGrid[i][j].f;
     }
-    console.log(row);
+    log.status(row);
   }
 };
 
@@ -323,11 +316,10 @@ class Cell {
 
 // return pair as string
 const pairToString = pair => {
-  try {
-    const s = ["{x: ", ", y: ", "}"];
-    return s[0] + pair.x + s[1] + pair.y + s[2];
-  } catch (e) {
-    console.log("!!! ex in search.pairToString " + e);
+  try { return `{x: ${pair.x}, y: ${pair.y}}`; }
+  catch (e) {
+    log.error(`ex in search.pairToString: ${e}`);
+    return "there was an error caught in search.pairToString";
   }
 };
 
@@ -341,7 +333,7 @@ const outOfBounds = ({ x, y }, grid) => {
       return false
     }
   } catch (e) {
-    console.log("!!! ex in outOfBounds " + e);
+    log.error(`ex in search.outOfBounds: ${e}`);
     return true
   }
 };
