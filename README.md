@@ -34,3 +34,5 @@ You can also deploy this repo directly to Heroku by clicking this link. You will
 * **Jan 20 v2.0.0:**
   * Inital port of algorithms from my [last year Python entry](https://github.com/tyrelh/battlesnake2018). Basic food finding using A* pathfinding. Is only seeking closest food rather than closest accessable food which leads to unnessesary deaths.
 * v1 of this AI is my [2018 entry](https://github.com/tyrelh/battlesnake2018) written in Python.
+
+_*The header image used in this readme is the property of [Battlesnake](https://www.battlesnake.io/)._
