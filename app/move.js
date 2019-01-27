@@ -11,10 +11,8 @@ const STATUS = true;
 let previousMove = 0;
 
 
-const hungry = (grid, data) => {
+const eat = (grid, data) => {
   let self = data.you;
-  let tail = self.body[self.body.length - 1];
-
   let target = null;
   let move = null;
   try {
@@ -23,7 +21,7 @@ const hungry = (grid, data) => {
     while (move === null) {
       grid[target.y][target.x] = k.SPACE;
       target = t.closestFood(grid, self.body[0]);
-      console.log(pairToString(target))
+      if (DEBUG) console.log(pairToString(target));
       if (target === null) {
         move = k.UP;
         break;
@@ -31,73 +29,77 @@ const hungry = (grid, data) => {
       move = search.astar(grid, data, target, k.FOOD);
     }
   }
-  catch (e) { console.log("!!! ex in hungry.closestFood " + e); }
+  catch (e) { console.log(`!!! ex in move.eat: ${e}`); }
+  if (DEBUG) console.log(`target in eat: ${pairToString(target)}`);
 
-  if (DEBUG) console.log("target in hungry: " + pairToString(target));
+  return buildMove(grid, data, move);
+};
 
+
+// track closest KILL_ZONE
+const hunt = (grid, data) => {
+  let self = data.you;
+  let target = null;
+  let move = null;
+  try {
+    target = t.closestKillableEnemy(grid, self.body[0]);
+    move = search.astar(grid, data, target, k.KILL_ZONE);
+    while (move === null) {
+      grid[target.y][target.x] = k.SPACE;
+      target = t.closestKillableEnemy(grid, self.body[0]);
+      if (DEBUG) console.log(pairToString(target));
+      if (target === null) {
+        move = k.UP;
+        break;
+      }
+      move = search.astar(grid, data, target, k.KILL_ZONE);
+    }
+  }
+  catch (e) { console.log(`!!! ex in move.hunt: ${e}`); }
+  if (DEBUG) console.log(`target in move.hunt: ${pairToString(target)}`);
+
+  return buildMove(grid, data, move)
+};
+
+
+// track own tail
+const killTime = (grid, data) => {
+  let move = k.UP;
+  const self = data.you;
+  let len = self.body.length
+  try {
+    let target = self.body[len - 1];
+    move = search.astar(grid, data, target, k.TAIL);
+    if (move === null) move = suggestMove(k.RIGHT, self.body[0], grid);
+  }
+  catch (e) { console.log(`!!! ex in move.killTime: ${e}`); }
+  return buildMove(grid, data, move);
+}
+
+
+const buildMove = (grid, data, move) => {
+  const self = data.you;
   let scores = [];
   try { 
     scores = baseMoveScores(grid, self);
     scores[move] += p.ASTAR_SUCCESS;
    }
-  catch (e) { console.log("!!! ex in hungry.baseMoveScores: " + e); }
-
-  // let move = null;
-  // try { move = search.astar(grid, data, target, k.FOOD); }
-  // catch (e) { console.log("!!! ex in hungry.a*: " + e); }
-
+  catch (e) { console.log(`!!! ex in buildMove.baseMoveScores: ${e}`); }
+  
   try {
     for (let m = 0; m < scores.length; m++) {
       scores[m] += search.fill(m, grid, data);
     }
   }
-  catch (e) { console.log("!!! ex in hungry.fill " + e); }
-
-  // let altMove = null;
-  // try {
-  //   if (move) {
-  //     if (validMove(move, self.body[0], grid)) {
-  //       scores[move] += p.ASTAR_SUCCESS;
-  //     } else {
-  //       altMove = suggestMove(move, self.body[0], grid);
-  //       if (altMove) scores[altMove] += p.ASTAR_ALT;
-  //     }
-  //   }
-  // }
-  // catch (e) { console.log("!!! ex in hungry.move check: " + e); }
+  catch (e) { console.log(`!!! ex in buildMove.fill: ${e}`); }
 
   if (previousMove != null) {
     scores[previousMove] += p.BASE_PREVIOUS;
   }
-  if (STATUS) console.log("MOVE SCORES: " + scores);
+  if (STATUS) console.log(`MOVE SCORES: ${scores}`);
   const bestMove = highestScoreMove(scores);
   previousMove = bestMove;
-  return bestMove;
-};
-
-
-const killTime = (grid, data) => {
-  let move = k.UP;
-  try {
-    const self = data.you;
-    const len = self.body.length
-    let target = self.body[len - 1];
-  }
-  catch (e) { console.log("!!! ex in m.killTime " + e); }
-  return move;
-}
-
-
-const angry = (grid, data) => {
-  let move = k.UP;
-  try { move = search.astar(grid, data, t.closestKillableEnemy(grid, data.you), k.KILL_ZONE); }
-  catch (e) { console.log("!!! ex in m.angry " + e); }
-  return move
-};
-
-
-const buildMove = () => {
-
+  return bestMove
 }
 
 
@@ -226,7 +228,7 @@ const pairToString = pair => {
 
 
 module.exports = {
-  hungry: hungry,
+  eat: eat,
   killTime: killTime,
-  angry: angry
+  hunt: hunt
 };
