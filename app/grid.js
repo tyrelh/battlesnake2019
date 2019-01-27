@@ -46,17 +46,16 @@ const buildGrid = data => {
       grid[y][x] = k.SNAKE_BODY;
     });
 
-    // check if tail can be TAIL or SNAKE_BODY
-    if (body.length > 2) {
-      const last = body[body.length - 1];
-      const sLast = body[body.length - 2]
-      if (health === 100 || sameCell(last, sLast)) {
-        grid[last.y][last.x] = k.SNAKE_BODY;
-      } else {
-        grid[last.y][last.x] = k.TAIL;
-      }
-    }
-      
+    // check if tail can be TAIL or SNAKE_BODY           // Just not working, keeps leading to deaths
+    // if (body.length > 2) {
+    //   const last = body[body.length - 1];
+    //   const sLast = body[body.length - 2]
+    //   if (health === 100 || sameCell(last, sLast)) {
+    //     grid[last.y][last.x] = k.SNAKE_BODY;
+    //   } else {
+    //     grid[last.y][last.x] = k.TAIL;
+    //   }
+    // }
 
     // skip filling own head and DANGER
     if (id === self.id) return;
