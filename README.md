@@ -6,6 +6,7 @@ This is my entry for this years [Battlesnake](https://www.battlesnake.io) progra
 Forked from the [NodeJS starter snake](https://github.com/battlesnakeio/starter-snake-node) provided by the [Battlesnake community](https://github.com/battlesnakeio/community).
 
 ## State of AI
+* **Sat Jan 26:** Snake will now try to become the largest snake. When it is the largest, it will seek out the nearest smaller snake to try to kill them.
 * **Wed Jan 22:** Fill search working. Can now score moves based on the space available if taking each move and what is in that space (tails, enemies, foods, etc).
 * **Mon Jan 21:** Set up move scoring system so that I can rank each move based on a number of different inputs. Also marked spaces near walls to try to avoid them.
 * **Sun Jan 20:** Inital port of algorithms from my last year Python entry. Basic food finding using A* pathfinding. Is only seeking closest food rather than closest accessable food which leads to unnessesary deaths. 
