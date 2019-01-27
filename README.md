@@ -6,7 +6,11 @@ This is my entry for this years [Battlesnake](https://www.battlesnake.io) progra
 Forked from the [NodeJS starter snake](https://github.com/battlesnakeio/starter-snake-node) provided by the [Battlesnake community](https://github.com/battlesnakeio/community).
 
 ## Running the snake locally
-Follow the directions given at the [original repo](https://github.com/battlesnakeio/starter-snake-node) for running the snake locally and for deploying to Heroku.
+Follow the directions given on the [Battlesnake Docs](http://docs.battlesnake.io/zero-to-snake-linux.html) in the Zero to Snake section for your operating system. When you get to the point where it tells you to clone the starter snake, you can clone this snake instead if you wish.
+```shell
+git clone git://github.com/tyrelh/battlesnake2019.git
+```
+You can also deploy this repo directly to Heroku by clicking this link. You will need a Heroku account to do this.
 
 [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
 
@@ -14,6 +18,8 @@ Follow the directions given at the [original repo](https://github.com/battlesnak
 * [Battlesnake Homepage](https://www.battlesnake.io/)
 * [Battlesnake 2019 API](http://docs.battlesnake.io/snake-api.html)
 * [Battlesnake Docs](http://docs.battlesnake.io)
+* [Battlesnake NodeJS Starter Snake](https://github.com/battlesnakeio/starter-snake-node)
+* [My 2018 Python Entry](https://github.com/tyrelh/battlesnake2018)
 
 ## Changelog
 * **Jan 27 v2.2.0:**
@@ -27,5 +33,4 @@ Follow the directions given at the [original repo](https://github.com/battlesnak
   * Also marked spaces near walls to try to avoid them.
 * **Jan 20 v2.0.0:**
   * Inital port of algorithms from my [last year Python entry](https://github.com/tyrelh/battlesnake2018). Basic food finding using A* pathfinding. Is only seeking closest food rather than closest accessable food which leads to unnessesary deaths.
-
-v1 of this AI is my [2018 entry](https://github.com/tyrelh/battlesnake2018) written in Python.
+* v1 of this AI is my [2018 entry](https://github.com/tyrelh/battlesnake2018) written in Python.
