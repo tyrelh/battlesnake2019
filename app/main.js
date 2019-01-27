@@ -12,6 +12,7 @@ let slowestMove = 0;
 
 // called for every move
 const move = (req, res) => {
+  console.log(req.body.board.snakes[0].body);
   let startTime;
   if (STATUS) {
     let date = new Date();
@@ -23,14 +24,17 @@ const move = (req, res) => {
 
   if (STATUS) console.log("\n######################################### MOVE " + data.turn + "\n");
 
-  const grid = g.buildGrid(data);
+  let grid = [];
+  try{ grid = g.buildGrid(data); }
+  catch (e) { console.log("!!! ex in main.buildGrid: " + e); }
+  
 
   let move = k.UP;
   try {
-    if (health > 40) move = m.killTime(grid, data);
-    else move = m.hungry(grid, data);
+    // if (health > 40) move = m.killTime(grid, data);
+    move = m.hungry(grid, data);
   } catch (e) {
-    console.log("ex in m.hungry: " + e);
+    console.log("ex in main.hungry: " + e);
   }
 
   if (STATUS) {
@@ -52,9 +56,6 @@ const start = (req, res) => {
   if (STATUS) console.log("\n\n\n\n##### STARTING GAME #####\n\n\n");
   slowest = 0;
   slowestMove = 0;
-  // const data = req.body;
-  // let grid = g.buildGrid(data.board);
-  // g.printGrid(grid);
   return res.json({ color: "#008FDE" });
 };
 
@@ -69,4 +70,4 @@ module.exports = {
   move: move,
   start: start,
   end: end
-}
+};

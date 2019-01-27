@@ -1,6 +1,6 @@
 const k = require("./keys");
 const g = require("./grid");
-const f = require("./food");
+const t = require("./target");
 const s = require("./self");
 const p = require("./params");
 
@@ -10,7 +10,7 @@ const LOG_ASTAR_GRID = false;
 
 
 // fill an area
-const fill = (direction, grid, self) => {
+const fill = (direction, grid, { you }) => {
   let closedGrid;
   let openGrid;
   closedGrid = g.initGrid(grid[0].length, grid.length, false);
@@ -54,8 +54,8 @@ const fill = (direction, grid, self) => {
     closedGrid[pos.y][pos.x] = true; 
   };
 
-  let size = self.body.length;
-  let current = self.body[0];
+  let size = you.body.length;
+  let current = you.body[0];
   let givenMovePos = {x: current.x, y: current.y};
   switch(direction) {
     case k.UP:
@@ -137,7 +137,7 @@ const astar = (grid, data, destination, mode = k.FOOD) => {
   const start = s.location(data);
   // on first few moves, point to closest food no matter what
   if (data.turn < p.INITIAL_FEEDING) {
-    destination = f.closestFood(grid, start);
+    destination = t.closestFood(grid, start);
     mode = k.FOOD;
   }
   if (DEBUG)
@@ -245,7 +245,7 @@ const astar = (grid, data, destination, mode = k.FOOD) => {
       printFScores(searchScores);
     }
     // TODO: some a* redundancy?
-    return k.UP;
+    return null;
   }
 };
 
@@ -327,7 +327,7 @@ const pairToString = pair => {
     const s = ["{x: ", ", y: ", "}"];
     return s[0] + pair.x + s[1] + pair.y + s[2];
   } catch (e) {
-    console.log("!!! ex in m.pairToString " + e);
+    console.log("!!! ex in search.pairToString " + e);
   }
 };
 
