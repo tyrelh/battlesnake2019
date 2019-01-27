@@ -5,7 +5,8 @@ This is my entry for this years [Battlesnake](https://www.battlesnake.io) progra
 
 Forked from the [NodeJS starter snake](https://github.com/battlesnakeio/starter-snake-node) provided by the [Battlesnake community](https://github.com/battlesnakeio/community).
 
-## State of AI
+## State of project
+* **Sun Jan 27:** Built custom logging. Logs are accumulated throughout a game and then written to a file on /end. A directory of logs is available at the index of the server.
 * **Sat Jan 26:** Snake will now try to become the largest snake. When it is the largest, it will seek out the nearest smaller snake to try to kill them.
 * **Wed Jan 22:** Fill search working. Can now score moves based on the space available if taking each move and what is in that space (tails, enemies, foods, etc).
 * **Mon Jan 21:** Set up move scoring system so that I can rank each move based on a number of different inputs. Also marked spaces near walls to try to avoid them.
