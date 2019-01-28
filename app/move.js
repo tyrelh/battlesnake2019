@@ -6,15 +6,12 @@ const p = require("./params");
 const search = require("./search")
 const log = require("./logger");
 
-const DEBUG = true;
-const STATUS = true;
-
 let previousMove = 0;
 
 
 // target closest reachable food
 const eat = (grid, data) => {
-  if (STATUS) log.status("EATING");
+  if (p.STATUS) log.status("EATING");
   let self = data.you;
   let target = null;
   let move = null;
@@ -24,7 +21,7 @@ const eat = (grid, data) => {
     while (move === null) {
       grid[target.y][target.x] = k.SPACE;
       target = t.closestFood(grid, self.body[0]);
-      if (DEBUG) log.debug(pairToString(target));
+      if (p.DEBUG) log.debug(pairToString(target));
       if (target === null) {
         move = suggestMove(k.RIGHT, self.body[0], grid);
         break;
@@ -33,7 +30,7 @@ const eat = (grid, data) => {
     }
   }
   catch (e) { log.error(`ex in move.eat: ${e}`); }
-  if (DEBUG) log.debug(`target in eat: ${pairToString(target)}`);
+  if (p.DEBUG) log.debug(`target in eat: ${pairToString(target)}`);
 
   return buildMove(grid, data, move);
 };
@@ -41,7 +38,7 @@ const eat = (grid, data) => {
 
 // track closest KILL_ZONE
 const hunt = (grid, data) => {
-  if (STATUS) log.status("HUNTING");
+  if (p.STATUS) log.status("HUNTING");
   let self = data.you;
   let target = null;
   let move = null;
@@ -51,7 +48,7 @@ const hunt = (grid, data) => {
     while (move === null) {
       grid[target.y][target.x] = k.SPACE;
       target = t.closestKillableEnemy(grid, self.body[0]);
-      if (DEBUG) log.debug(pairToString(target));
+      if (p.DEBUG) log.debug(pairToString(target));
       if (target === null) {
         move = suggestMove(k.RIGHT, self.body[0], grid);
         break;
@@ -60,7 +57,7 @@ const hunt = (grid, data) => {
     }
   }
   catch (e) { log.error(`ex in move.hunt: ${e}`); }
-  if (DEBUG) log.debug(`target in move.hunt: ${pairToString(target)}`);
+  if (p.DEBUG) log.debug(`target in move.hunt: ${pairToString(target)}`);
 
   return buildMove(grid, data, move)
 };
@@ -68,7 +65,7 @@ const hunt = (grid, data) => {
 
 // track own tail
 const killTime = (grid, data) => {
-  if (STATUS) log.status("KILLING TIME");
+  if (p.STATUS) log.status("KILLING TIME");
   let move = k.UP;
   const self = data.you;
   let len = self.body.length
@@ -101,7 +98,7 @@ const buildMove = (grid, data, move) => {
   if (previousMove != null) {
     scores[previousMove] += p.BASE_PREVIOUS;
   }
-  if (STATUS) log.status(`Move scores: ${scoresToString(scores)}`);
+  if (p.STATUS) log.status(`Move scores: ${scoresToString(scores)}`);
   const bestMove = highestScoreMove(scores);
   previousMove = bestMove;
   return bestMove
@@ -137,26 +134,29 @@ const baseMoveScores = (grid, self) => {
 
 // return a base score depending on what is currently in that position on the board
 const baseScoreForBoardPosition = (x, y, grid) => {
-  // if out of bounds
-  if (search.outOfBounds({ x: x, y: y }, grid)) return p.BASE_BAD;
-  // types of spaces
-  switch (grid[y][x]) {
-    case k.SPACE:
-      return p.BASE_SPACE;
-    case k.TAIL:
-      return p.BASE_TAIL;
-    case k.FOOD:
-      return p.BASE_FOOD;
-    case k.KILL_ZONE:
-      return p.BASE_KILL_ZONE;
-    case k.WARNING:
-      return p.BASE_WARNING;
-    case k.DANGER:
-      return p.BASE_DANGER;
-    // default includes SNAKE_BODY and ENEMY_HEAD
-    default:
-      return p.BASE_BAD;
+  try {
+    // if out of bounds
+    if (search.outOfBounds({ x: x, y: y }, grid)) return p.BASE_BAD;
+    // types of spaces
+    switch (grid[y][x]) {
+      case k.SPACE:
+        return p.BASE_SPACE;
+      case k.TAIL:
+        return p.BASE_TAIL;
+      case k.FOOD:
+        return p.BASE_FOOD;
+      case k.KILL_ZONE:
+        return p.BASE_KILL_ZONE;
+      case k.WARNING:
+        return p.BASE_WARNING;
+      case k.DANGER:
+        return p.BASE_DANGER;
+      // default includes SNAKE_BODY and ENEMY_HEAD
+      default:
+        return p.BASE_BAD;
+    }
   }
+  catch (e) { log.error(`ex in move.baseScoreForBoardPosition: ${e}`); }
 };
 
 

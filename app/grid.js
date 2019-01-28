@@ -1,8 +1,7 @@
 const k = require("./keys");
-const log = require("./logger")
+const log = require("./logger");
+const p = require("./params");
 
-const DEBUG = false;
-const STATUS = false;
 
 const buildGrid = data => {
   const board = data.board;
@@ -89,7 +88,7 @@ const buildGrid = data => {
   }
   catch (e) { log.error(`ex in snakes marking grid.buildGrid: ${e}`); }
 
-  if (DEBUG) printGrid(grid);
+  if (p.DEBUG_MAPS) printGrid(grid);
   return grid;
 };
 

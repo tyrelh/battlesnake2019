@@ -1,4 +1,5 @@
 const fs = require("fs");
+const p = require("./params");
 
 let log = "";
 
@@ -29,14 +30,17 @@ const writeLogs = (data) => {
 
 const error = message => {
   log += `ERROR: ${message}\n`
+  if (p.CONSOLE_LOG) console.log(`ERROR: ${message}`);
 }
 
 const status = message => {
   log += `${message}\n`
+  if (p.CONSOLE_LOG) console.log(`${message}`);
 }
 
 const debug = message => {
   log += `DEBUG: ${message}\n`
+  if (p.CONSOLE_LOG) console.log(`DEBUG: ${message}`);
 }
 
 module.exports = {

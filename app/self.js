@@ -1,6 +1,5 @@
 const log = require("./logger");
-
-const DEBUG = true;
+const p = require("./params");
 
 const location = ({ you }) => {
   try { return {x: you.body[0].x, y: you.body[0].y}; }
@@ -25,7 +24,7 @@ const biggestSnake = (data) => {
     for (let i = 0; i < data.board.snakes.length; i++) {
       let snake = data.board.snakes[i];
       if (snake.id === me) continue;
-      if (DEBUG) log.debug(`My length: ${myLength}. Enemy length: ${snake.body.length}`);
+      // if (p.DEBUG) log.debug(`My length: ${myLength}. Enemy length: ${snake.body.length}`);
       if (snake.body.length >= myLength) return false;
     }
     return true;

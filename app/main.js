@@ -5,9 +5,6 @@ const p = require("./params");
 const s = require("./self");
 const log = require("./logger");
 
-const DEBUG = true;
-const STATUS = true;
-
 let slowest = 0;
 let slowestMove = 0;
 
@@ -15,7 +12,7 @@ let slowestMove = 0;
 // called for every move
 const move = (req, res) => {
   let startTime;
-  if (STATUS) {
+  if (p.STATUS) {
     let date = new Date();
     startTime = date.getMilliseconds();
   }
@@ -23,7 +20,7 @@ const move = (req, res) => {
   const data = req.body;
   const health = data.you.health;
 
-  if (STATUS) log.status(`\n\n############################### MOVE ${data.turn}\n`);
+  if (p.STATUS) log.status(`\n\n############################### MOVE ${data.turn}\n`);
 
   let grid = [];
   try{ grid = g.buildGrid(data); }
@@ -31,7 +28,7 @@ const move = (req, res) => {
   
 
   let move = k.RIGHT;
-  if (DEBUG) log.status(`biggest snake ? ${s.biggestSnake(data)}`);
+  if (p.DEBUG) log.status(`biggest snake ? ${s.biggestSnake(data)}`);
   // if you are hungry or small you gotta eat
   if (health < p.SURVIVAL_MIN || !s.biggestSnake(data)) {
     try { move = m.eat(grid, data); }
@@ -49,7 +46,7 @@ const move = (req, res) => {
   }
   
 
-  if (STATUS) {
+  if (p.STATUS) {
     let date2 = new Date();
     let endTime = date2.getMilliseconds();
     if (endTime - startTime > slowest) {
@@ -66,7 +63,7 @@ const move = (req, res) => {
 const start = (req, res) => {
   // ensure previous game logs are cleared
   log.initGameLogs();
-  if (STATUS) {
+  if (p.STATUS) {
     log.status(`############################### STARTING GAME ${req.body.game.id}\n\n`);
     slowest = 0;
     slowestMove = 0;
@@ -74,7 +71,7 @@ const start = (req, res) => {
   const blue = "#3b94e3";
   const pink = "#cc4ff1"
   const green = "#2be384"
-  return res.json({ color: green });
+  return res.json({ color: blue });
 };
 
 

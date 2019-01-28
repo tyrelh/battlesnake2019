@@ -5,10 +5,6 @@ const s = require("./self");
 const p = require("./params");
 const log = require("./logger");
 
-const DEBUG = false;
-const STATUS = true;
-const LOG_ASTAR_GRID = false;
-
 
 // fill an area
 const fill = (direction, grid, { you }) => {
@@ -116,7 +112,7 @@ const fill = (direction, grid, { you }) => {
   score += foods * p.BASE_FOOD;
   score += enemyHeads * p.BASE_ENEMY_HEAD;
   score += killZones * p.BASE_KILL_ZONE;
-  if (DEBUG) log.debug(`Score in fill: ${score} for move ${k.DIRECTION[direction]}`);
+  if (p.DEBUG) log.debug(`Score in fill: ${score} for move ${k.DIRECTION[direction]}`);
   return score;
 }
 
@@ -124,7 +120,7 @@ const fill = (direction, grid, { you }) => {
 // a* pathfinding algorithm that will find the shortest path from current head
 // location to a given destination
 const astar = (grid, data, destination, mode = k.FOOD) => {
-  if (STATUS) log.status("Calculating path (astar)...");
+  if (p.STATUS) log.status("Calculating path (astar)...");
   // init search fields
   const searchScores = buildAstarGrid(grid);
   let openSet = [];
@@ -136,7 +132,7 @@ const astar = (grid, data, destination, mode = k.FOOD) => {
     destination = t.closestFood(grid, start);
     mode = k.FOOD;
   }
-  if (DEBUG) log.debug(`astar destination: ${k.TYPE[mode]}, ${pairToString(destination)}`);
+  if (p.DEBUG) log.debug(`astar destination: ${k.TYPE[mode]}, ${pairToString(destination)}`);
   openSet.push(start);
   // while the open set is not empty keep searching
   while (openSet.length) {
@@ -152,21 +148,21 @@ const astar = (grid, data, destination, mode = k.FOOD) => {
     });
     // check if found destination
     if (sameCell(lowestCell, destination)) {
-      if (STATUS) log.status("Found a path!");
-      if (LOG_ASTAR_GRID) {
+      if (p.STATUS) log.status("Found a path!");
+      if (p.DEBUG_MAPS) {
         log.debug("astar grid after search success:");
         printFScores(astarGrid);
       }
       // re-trace path back to origin to find optimal next move
       let tempCell = lowestCell;
-      if (DEBUG) log.debug(`astar start pos: ${pairToString(start)}`);
+      if (p.DEBUG) log.debug(`astar start pos: ${pairToString(start)}`);
       while (
         searchScores[tempCell.y][tempCell.x].previous.x != start.x ||
         searchScores[tempCell.y][tempCell.x].previous.y != start.y
       ) {
         tempCell = searchScores[tempCell.y][tempCell.x].previous;
       }
-      if (DEBUG) log.debug(`astar next move: ${pairToString(tempCell)}`);
+      if (p.DEBUG) log.debug(`astar next move: ${pairToString(tempCell)}`);
       return calcDirection(start, tempCell);
     }
     // else continue searching
@@ -184,22 +180,22 @@ const astar = (grid, data, destination, mode = k.FOOD) => {
       const neighbor = currentNeighbors[n];
       let neighborCell = searchScores[neighbor.y][neighbor.x];
       if (sameCell(neighbor, destination)) {
-        if (STATUS) log.status("Found a path (neighbor)");
+        if (p.STATUS) log.status("Found a path (neighbor)");
         neighborCell.previous = current;
-        if (LOG_ASTAR_GRID) {
+        if (p.DEBUG_MAPS) {
           log.debug("astar grid after search success:");
           printFScores(searchScores);
         }
         // re-trace path back to origin to find optimal next move
         let temp = neighbor;
-        if (DEBUG) log.debug(`astar start pos: ${pairToString(start)}`);
+        if (p.DEBUG) log.debug(`astar start pos: ${pairToString(start)}`);
         while (
           searchScores[temp.y][temp.x].previous.x != start.x ||
           searchScores[temp.y][temp.x].previous.y != start.y
         ) {
           temp = searchScores[temp.y][temp.x].previous;
         }
-        if (DEBUG) log.debug(`astar next move: ${pairToString(start)}`);
+        if (p.DEBUG) log.debug(`astar next move: ${pairToString(start)}`);
         return calcDirection(start, temp);
       }
       // check if neighbor can be moved to
@@ -232,8 +228,8 @@ const astar = (grid, data, destination, mode = k.FOOD) => {
   }
   // if reach this point and open set is empty, no path
   if (!openSet.length) {
-    if (STATUS) log.status("COULD NOT FIND PATH!");
-    if (LOG_ASTAR_GRID) {
+    if (p.STATUS) log.status("COULD NOT FIND PATH!");
+    if (p.DEBUG_MAPS) {
       localStorage.debug("astar grid after search failure:");
       printFScores(searchScores);
     }
