@@ -22,16 +22,21 @@ You can also deploy this repo directly to Heroku by clicking this link. You will
 * [My 2018 Python Entry](https://github.com/tyrelh/battlesnake2018)
 
 ## Changelog
-* **Jan 27 v2.2.0:**
+* **v2.3.0:**
+  * Add second fill search to move scoring that will better count spaces based on the possible future moves of the snakes.
+* **v2.2.1:**
+  * Fix bug with kill zone marking, so snake can more accurately hunt prey.
+  * Fix bug with tail marking so snake can more often use tail spaces as empty spaces.
+* **v2.2.0:**
   * Built custom logging. Logs are accumulated throughout a game and then written to a file on /end. A directory of logs is available at the index of the server.
-* **Jan 26 v2.1.0:**
+* **v2.1.0:**
   * Snake will now try to become the largest snake. When it is the largest, it will seek out the nearest smaller snake to try to kill them.
-* **Jan 22 v2.0.2:**
+* **v2.0.2:**
   * Fill search working. Can now score moves based on the space available if taking each move and what is in that space (tails, enemies, foods, etc).
-* **Jan 21 v2.0.1:**
+* **v2.0.1:**
   * Set up move scoring system so that I can rank each move based on a number of different inputs.
   * Also marked spaces near walls to try to avoid them.
-* **Jan 20 v2.0.0:**
+* **v2.0.0:**
   * Inital port of algorithms from my [last year Python entry](https://github.com/tyrelh/battlesnake2018). Basic food finding using A* pathfinding. Is only seeking closest food rather than closest accessable food which leads to unnessesary deaths.
 * v1 of this AI is my [2018 entry](https://github.com/tyrelh/battlesnake2018) written in Python.
 
