@@ -72,7 +72,7 @@ const start = (req, res) => {
   const blue = "#3b94e3";
   const pink = "#cc4ff1";
   const green = "#2be384";
-  return res.json({ color: pink });
+  return res.json({ color: green });
 };
 
 
