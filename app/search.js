@@ -3,6 +3,7 @@ const g = require("./grid");
 const t = require("./target");
 const s = require("./self");
 const p = require("./params");
+const m = require("./move");
 const log = require("./logger");
 
 
@@ -241,6 +242,21 @@ const astar = (grid, data, destination, mode = k.FOOD) => {
   }
 };
 
+
+const distanceToEnemy = (direction, grid, data) => {
+  try {
+    if (m.validMove(direction, you.body[0], grid)) {
+      const you = data.you;
+      const closestEnemyHead = t.closestEnemyHead(grid, you);
+      if (closestEnemyHead === null) return 0;
+      return g.getDistance(closestEnemyHead, you.body[0]);
+    }
+  }
+  catch (e) { log.error(`ex in search.distanceToEnemy: ${e}`); }
+  return 0;
+}
+
+
 // test if cells are the same
 const sameCell = (a, b) => a.x === b.x && a.y === b.y;
 
@@ -341,5 +357,6 @@ const outOfBounds = ({ x, y }, grid) => {
 module.exports = {
   outOfBounds: outOfBounds,
   astar: astar,
-  fill: fill
+  fill: fill,
+  distanceToEnemy: distanceToEnemy
 }

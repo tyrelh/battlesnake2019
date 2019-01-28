@@ -79,6 +79,7 @@ const killTime = (grid, data) => {
 }
 
 
+// build up move scores and return best move
 const buildMove = (grid, data, move) => {
   const self = data.you;
   let scores = [];
@@ -86,15 +87,36 @@ const buildMove = (grid, data, move) => {
     scores = baseMoveScores(grid, self);
     scores[move] += p.ASTAR_SUCCESS;
    }
-  catch (e) { log.error(`ex in buildMove.baseMoveScores: ${e}`); }
+  catch (e) { log.error(`ex in move.buildMove.baseMoveScores: ${e}`); }
   
   try {
-    for (let m = 0; m < scores.length; m++) {
+    for (let m = 0; m < 4; m++) {
       scores[m] += search.fill(m, grid, data);
       scores[m] += search.fill(m, grid, data, [k.KILL_ZONE, k.DANGER, k.WARNING]);
     }
   }
-  catch (e) { log.error(`ex in buildMove.fill: ${e}`); }
+  catch (e) { log.error(`ex in move.buildMove.fill: ${e}`); }
+
+  try {
+    let enemyDistances = [0,0,0,0];
+    let largestDistance = 0;
+    let largestDistanceMove = 0;
+    let uniqueLargestDistanceMove = false;
+    for (let m = 0; m < 4; m++) {
+      const currentDistance = search.distanceToEnemy(m, grid, data);
+      if (enemyDistances[m] < currentDistance) {
+        enemyDistances[m] = currentDistance;
+        if (largestDistance === currentDistance) uniqueLargestDistanceMove = false;
+        else if (largestDistance < currentDistance) {
+          largestDistance = currentDistance;
+          largestDistanceMove = m;
+          uniqueLargestDistanceMove = true;
+        }
+      }
+    }
+    if (uniqueLargestDistanceMove) scores[largestDistanceMove] += p.ENEMY_DISTANCE;
+  }
+  catch (e) { log.error(`ex in move.buildMove.closestEnemyHead: ${e}`); }
 
   if (previousMove != null) {
     scores[previousMove] += p.BASE_PREVIOUS;
@@ -235,5 +257,6 @@ const scoresToString = scores => {
 module.exports = {
   eat: eat,
   killTime: killTime,
-  hunt: hunt
+  hunt: hunt,
+  validMove: validMove
 };
