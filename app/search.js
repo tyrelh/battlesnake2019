@@ -7,7 +7,7 @@ const log = require("./logger");
 
 
 // fill an area
-const fill = (direction, grid, { you }) => {
+const fill = (direction, grid, { you }, constraints = []) => {
   let closedGrid;
   let openGrid;
   closedGrid = g.initGrid(grid[0].length, grid.length, false);
@@ -23,6 +23,9 @@ const fill = (direction, grid, { you }) => {
     try {
       if (!outOfBounds(pos, grid) && !inGrid(pos, closedGrid) && !inGrid(pos, openGrid)) {
         if (inGrid(pos, grid) <= k.DANGER) {
+          for (let i = 0; i < constraints.length; i++) {
+            if (inGrid(pos, grid) === constraints[i]) return;
+          }
           openStack.push(pos);
           openGrid[pos.y][pos.x] = true;
         }
