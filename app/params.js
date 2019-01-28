@@ -14,7 +14,7 @@ module.exports = {
   BASE_FOOD: 0.5,
   BASE_TAIL: 7.9, // UP from 0.35
   BASE_SPACE: 0.3,
-  BASE_WARNING: -1, // DOWN from 0.2
+  BASE_WARNING: -3, // DOWN from 0.2 *
   BASE_DANGER: -7.9, // DOWN from 0.1
   BASE_ENEMY_HEAD: -11, // DOWN from -2
   BASE_BAD: -10.0,
