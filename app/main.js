@@ -78,7 +78,7 @@ const start = (req, res) => {
 
 // called when you die, or end of game if you win
 const end = (req, res) => {
-  log.status(`Slowest move ${slowestMove} took ${slowest}ms.`);
+  log.status(`\nSlowest move ${slowestMove} took ${slowest}ms.`);
   // write logs for this game to file
   log.writeLogs(req.body);
   return res.json({});
