@@ -60,11 +60,7 @@ const buildGrid = data => {
       // }
 
       // skip filling own head and DANGER
-      if (id === self.id) {
-        console.log("SNAKE IS ME!!!!!!!!!!!!!");
-        return;
-      }
-      console.log("SNAKE IS NOT ME!!!!!!!!!!!!!");
+      if (id === self.id) return;
 
       // fill ENEMY_HEAD and DANGER locations
       const head = body[0];
