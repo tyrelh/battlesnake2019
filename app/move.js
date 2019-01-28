@@ -91,7 +91,7 @@ const buildMove = (grid, data, move) => {
   try {
     for (let m = 0; m < scores.length; m++) {
       scores[m] += search.fill(m, grid, data);
-      scores[m] += search.fill(m, grid, data, [k.DANGER, k.WARNING]);
+      scores[m] += search.fill(m, grid, data, [k.KILL_ZONE, k.DANGER, k.WARNING]);
     }
   }
   catch (e) { log.error(`ex in buildMove.fill: ${e}`); }
