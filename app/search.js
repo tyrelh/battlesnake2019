@@ -149,10 +149,10 @@ const astar = (grid, data, destination, mode = k.FOOD) => {
     // check if found destination
     if (sameCell(lowestCell, destination)) {
       if (p.STATUS) log.status("Found a path!");
-      if (p.DEBUG_MAPS) {
-        log.debug("astar grid after search success:");
-        printFScores(astarGrid);
-      }
+      // if (p.DEBUG_MAPS) {
+      //   log.debug("astar grid after search success:");
+      //   printFScores(astarGrid);
+      // }
       // re-trace path back to origin to find optimal next move
       let tempCell = lowestCell;
       if (p.DEBUG) log.debug(`astar start pos: ${pairToString(start)}`);
@@ -182,10 +182,10 @@ const astar = (grid, data, destination, mode = k.FOOD) => {
       if (sameCell(neighbor, destination)) {
         if (p.STATUS) log.status("Found a path (neighbor)");
         neighborCell.previous = current;
-        if (p.DEBUG_MAPS) {
-          log.debug("astar grid after search success:");
-          printFScores(searchScores);
-        }
+        // if (p.DEBUG_MAPS) {
+        //   log.debug("astar grid after search success:");
+        //   printFScores(searchScores);
+        // }
         // re-trace path back to origin to find optimal next move
         let temp = neighbor;
         if (p.DEBUG) log.debug(`astar start pos: ${pairToString(start)}`);
@@ -229,10 +229,10 @@ const astar = (grid, data, destination, mode = k.FOOD) => {
   // if reach this point and open set is empty, no path
   if (!openSet.length) {
     if (p.STATUS) log.status("COULD NOT FIND PATH!");
-    if (p.DEBUG_MAPS) {
-      localStorage.debug("astar grid after search failure:");
-      printFScores(searchScores);
-    }
+    // if (p.DEBUG_MAPS) {
+    //   localStorage.debug("astar grid after search failure:");
+    //   printFScores(searchScores);
+    // }
     // TODO: some a* redundancy?
     return null;
   }
