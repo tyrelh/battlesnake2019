@@ -65,13 +65,14 @@ const start = (req, res) => {
   log.initGameLogs();
   if (p.STATUS) {
     log.status(`############################### STARTING GAME ${req.body.game.id}\n\n`);
+    log.status(`My snake id is ${req.body.you.id}`);
     slowest = 0;
     slowestMove = 0;
   }
   const blue = "#3b94e3";
-  const pink = "#cc4ff1"
-  const green = "#2be384"
-  return res.json({ color: blue });
+  const pink = "#cc4ff1";
+  const green = "#2be384";
+  return res.json({ color: pink });
 };
 
 
