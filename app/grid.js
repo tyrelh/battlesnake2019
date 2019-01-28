@@ -80,7 +80,10 @@ const buildGrid = data => {
         grid[head.y][head.x - 1] = headZone;
       }
       // check for tail
-      if (tailSpace) grid[last.y][last.x] = k.TAIL;
+      if (tailSpace && data.turn > 3) {
+        let tail = body[body.length - 1]
+        grid[tail.y][tail.x] = k.TAIL;
+      }
     });
   }
   catch (e) { log.error(`ex in snakes marking grid.buildGrid: ${e}`); }
