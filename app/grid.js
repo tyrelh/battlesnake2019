@@ -48,12 +48,12 @@ const buildGrid = data => {
         grid[y][x] = k.SNAKE_BODY;
       });
 
-      // skip filling own head and DANGER
-      if (id === self.id) return;
+      // // skip filling own head and DANGER
+      // if (id === self.id) return;
 
       // fill ENEMY_HEAD and DANGER locations
       const head = body[0];
-      grid[head.y][head.x] = k.ENEMY_HEAD;
+      if (id != self.id) grid[head.y][head.x] = k.ENEMY_HEAD;
 
       // mark DANGER or KILL_ZONE around enemy head based on snake length
       // also check if tail can be TAIL or SNAKE_BODY
@@ -62,22 +62,22 @@ const buildGrid = data => {
       // check down
       if (head.y + 1 < board.height && grid[head.y + 1][head.x] < k.DANGER) {
         if (grid[head.y + 1][head.x] === k.FOOD) tailSpace = false;
-        grid[head.y + 1][head.x] = headZone;
+        if (id != self.id) grid[head.y + 1][head.x] = headZone;
       }
       // check up
       if (head.y - 1 >= 0 && grid[head.y - 1][head.x] < k.DANGER) {
         if (grid[head.y - 1][head.x] === k.FOOD) tailSpace = false;
-        grid[head.y - 1][head.x] = headZone;
+        if (id != self.id) grid[head.y - 1][head.x] = headZone;
       }
       // check left
       if (head.x + 1 < board.width && grid[head.y][head.x + 1] < k.DANGER) {
         if (grid[head.y][head.x + 1] === k.FOOD) tailSpace = false;
-        grid[head.y][head.x + 1] = headZone;
+        if (id != self.id) grid[head.y][head.x + 1] = headZone;
       }
       // check right
       if (head.x - 1 >= 0 && grid[head.y][head.x - 1] < k.DANGER) {
         if (grid[head.y][head.x - 1] === k.FOOD) tailSpace = false;
-        grid[head.y][head.x - 1] = headZone;
+        if (id != self.id) grid[head.y][head.x - 1] = headZone;
       }
       // check for tail
       if (tailSpace && data.turn > 3) {
