@@ -60,28 +60,32 @@ const buildGrid = data => {
       // }
 
       // skip filling own head and DANGER
-      if (id === self.id) return;
+      if (id === self.id) {
+        console.log("SNAKE IS ME!!!!!!!!!!!!!");
+        return;
+      }
+      console.log("SNAKE IS NOT ME!!!!!!!!!!!!!");
 
       // fill ENEMY_HEAD and DANGER locations
       const head = body[0];
-      grid[head.y][head.y] = k.ENEMY_HEAD;
+      grid[head.y][head.x] = k.ENEMY_HEAD;
 
       // mark DANGER or KILL_ZONE around enemy head based on snake length
       let headZone = body.length < self.body.length ? k.KILL_ZONE : k.DANGER;
       // check down
-      if (head.y + 1 < board.height && grid[head.y + 1][head.x] < headZone) {
+      if (head.y + 1 < board.height && grid[head.y + 1][head.x] < k.DANGER) {
         grid[head.y + 1][head.x] = headZone;
       }
       // check up
-      if (head.y - 1 >= 0 && grid[head.y - 1][head.x] < headZone) {
+      if (head.y - 1 >= 0 && grid[head.y - 1][head.x] < k.DANGER) {
         grid[head.y - 1][head.x] = headZone;
       }
       // check left
-      if (head.x + 1 < board.width && grid[head.y][head.x + 1] < headZone) {
+      if (head.x + 1 < board.width && grid[head.y][head.x + 1] < k.DANGER) {
         grid[head.y][head.x + 1] = headZone;
       }
       // check right
-      if (head.x - 1 >= 0 && grid[head.y][head.x - 1] < headZone) {
+      if (head.x - 1 >= 0 && grid[head.y][head.x - 1] < k.DANGER) {
         grid[head.y][head.x - 1] = headZone;
       }
     });
