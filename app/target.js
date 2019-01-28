@@ -10,6 +10,10 @@ const closestKillableEnemy = (grid, self) => {
   return closestTarget(grid, self, k.KILL_ZONE);
 }
 
+const closestEnemyHead = (grid, self) => {
+  return closestTarget(grid, self, k.ENEMY_HEAD);
+}
+
 // simple search for closest target of a specified grid type
 const closestTarget = (grid, self, targetType) => {
   try {
@@ -35,5 +39,6 @@ const closestTarget = (grid, self, targetType) => {
 
 module.exports = {
   closestFood: closestFood,
-  closestKillableEnemy: closestKillableEnemy
+  closestKillableEnemy: closestKillableEnemy,
+  closestEnemyHead: closestEnemyHead
 };
