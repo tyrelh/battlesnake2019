@@ -245,8 +245,8 @@ const astar = (grid, data, destination, mode = k.FOOD) => {
 
 const distanceToEnemy = (direction, grid, data) => {
   try {
+    const you = data.you;
     if (m.validMove(direction, you.body[0], grid)) {
-      const you = data.you;
       const closestEnemyHead = t.closestEnemyHead(grid, you);
       if (closestEnemyHead === null) return 0;
       return g.getDistance(closestEnemyHead, you.body[0]);
