@@ -11,7 +11,7 @@ module.exports = {
   ASTAR_SUCCESS: 8.0,   // DOWN from 10 -
   ENEMY_DISTANCE: 1.5,
   BASE_KILL_ZONE: 2.1,
-  BASE_FOOD: 0.5,
+  BASE_FOOD: 0.9,
   BASE_TAIL: 7.9,       // UP from 0.35 +
   BASE_SPACE: 0.3,
   BASE_WARNING: -2.5,   // DOWN from 0.2 -+
