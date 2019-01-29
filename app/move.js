@@ -57,7 +57,7 @@ const hunt = (grid, data) => {
     }
   }
   catch (e) { log.error(`ex in move.hunt: ${e}`); }
-  if (p.DEBUG) log.debug(`target in move.hunt: ${pairToString(target)}`);
+  if (p.DEBUG && target != null) log.debug(`target in move.hunt: ${pairToString(target)}`);
 
   return buildMove(grid, data, move)
 };
