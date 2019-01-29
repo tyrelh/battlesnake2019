@@ -136,6 +136,11 @@ const astar = (grid, data, destination, mode = k.FOOD) => {
     destination = t.closestFood(grid, start);
     mode = k.FOOD;
   }
+  if (destination == null) {
+    log.debug("In search.astar, destination was null, trying to target tail.");
+    destination = s.tailLocation(data);
+    mode = k.TAIL;
+  }
   if (p.DEBUG) log.debug(`astar destination: ${k.TYPE[mode]}, ${pairToString(destination)}`);
   openSet.push(start);
   // while the open set is not empty keep searching
@@ -246,7 +251,8 @@ const astar = (grid, data, destination, mode = k.FOOD) => {
 const distanceToEnemy = (direction, grid, data) => {
   try {
     const you = data.you;
-    if (m.validMove(direction, you.body[0], grid)) {
+    // console.log(k);
+    if (validMove(direction, you.body[0], grid)) {
       const closestEnemyHead = t.closestEnemyHead(grid, you);
       if (closestEnemyHead === null) return 0;
       return g.getDistance(closestEnemyHead, you.body[0]);
@@ -351,6 +357,26 @@ const outOfBounds = ({ x, y }, grid) => {
     log.error(`ex in search.outOfBounds: ${e}`);
     return true
   }
+};
+
+
+// check if move is not fatal
+const validMove = (direction, pos, grid) => {
+  try {
+    if (outOfBounds(pos, grid)) return false;
+    switch (direction) {
+      case k.UP:
+        return grid[pos.y - 1][pos.x] <= k.DANGER;
+      case k.DOWN:
+        return grid[pos.y + 1][pos.x] <= k.DANGER;
+      case k.LEFT:
+        return grid[pos.y][pos.x - 1] <= k.DANGER;
+      case k.RIGHT:
+        return grid[pos.y][pos.x + 1] <= k.DANGER;
+    }
+    return false;
+  }
+  catch (e) { log.error(`ex in search.validMove: ${e}\n{direction: ${direction}, pos: ${pos}, grid: ${grid}}`); }
 };
 
 
