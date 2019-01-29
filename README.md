@@ -25,6 +25,7 @@ You can also deploy this repo directly to Heroku by clicking this link. You will
 * **v2.3.1:**
   * Fix bug with marking own tail as a space when confident its ok.
   * Add small score bias to move moving me farther from closest dangerous snake head.
+  * Add redundancy in astar for if destination is null
 * **v2.3.0:**
   * Add second fill search to move scoring that will better count spaces based on the possible future moves of the snakes.
 * **v2.2.1:**
