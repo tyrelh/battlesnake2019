@@ -59,30 +59,54 @@ const buildGrid = data => {
       // also check if tail can be TAIL or SNAKE_BODY
       let tailSpace = true;
       let headZone = body.length < self.body.length ? k.KILL_ZONE : k.DANGER;
+      // TODO: these checks can be simplified?
       // check down
       if (head.y + 1 < board.height && grid[head.y + 1][head.x] < k.DANGER) {
         if (grid[head.y + 1][head.x] === k.FOOD) tailSpace = false;
-        if (id != self.id) grid[head.y + 1][head.x] = headZone;
+        // if (id != self.id) grid[head.y + 1][head.x] = headZone;
       }
       // check up
       if (head.y - 1 >= 0 && grid[head.y - 1][head.x] < k.DANGER) {
         if (grid[head.y - 1][head.x] === k.FOOD) tailSpace = false;
-        if (id != self.id) grid[head.y - 1][head.x] = headZone;
+        // if (id != self.id) grid[head.y - 1][head.x] = headZone;
       }
       // check left
       if (head.x + 1 < board.width && grid[head.y][head.x + 1] < k.DANGER) {
         if (grid[head.y][head.x + 1] === k.FOOD) tailSpace = false;
-        if (id != self.id) grid[head.y][head.x + 1] = headZone;
+        // if (id != self.id) grid[head.y][head.x + 1] = headZone;
       }
       // check right
       if (head.x - 1 >= 0 && grid[head.y][head.x - 1] < k.DANGER) {
         if (grid[head.y][head.x - 1] === k.FOOD) tailSpace = false;
-        if (id != self.id) grid[head.y][head.x - 1] = headZone;
+        // if (id != self.id) grid[head.y][head.x - 1] = headZone;
       }
       // check for tail
       if (tailSpace && data.turn > 3) {
         let tail = body[body.length - 1]
         grid[tail.y][tail.x] = k.TAIL;
+      }
+    });
+
+    // fill DANGER or KILL_ZONE locations around each snake head
+    board.snakes.forEach(({ id, name, health, body }) => {
+      if (id == self.id) return;
+      const head = body[0];
+      let headZone = body.length < self.body.length ? k.KILL_ZONE : k.DANGER;
+      // check up
+      if (head.y + 1 < board.height && grid[head.y + 1][head.x] < k.DANGER) {
+        grid[head.y + 1][head.x] = headZone;
+      }
+      // check down
+      if (head.y - 1 >= 0 && grid[head.y - 1][head.x] < k.DANGER) {
+        grid[head.y - 1][head.x] = headZone;
+      }
+      // check left
+      if (head.x - 1 >= 0 && grid[head.y][head.x - 1] < k.DANGER) {
+        grid[head.y][head.x - 1] = headZone;
+      }
+      // check right
+      if (head.x + 1 < board.width && grid[head.y][head.x + 1] < k.DANGER) {
+        grid[head.y][head.x + 1] = headZone;
       }
     });
   }
