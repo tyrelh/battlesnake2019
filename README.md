@@ -22,6 +22,10 @@ You can also deploy this repo directly to Heroku by clicking this link. You will
 * [My 2018 Python Entry](https://github.com/tyrelh/battlesnake2018)
 
 ## Changelog
+* **v2.3.2:**
+  * Add search score scaling to eating logic based on health level.
+  * Mark self different than other snakes. Mostly for debugging.
+  * Mark spaces near wall uniquely with their own score bais.
 * **v2.3.1:**
   * Fix bug with marking own tail as a space when confident its ok.
   * Add small score bias to move moving me farther from closest dangerous snake head.

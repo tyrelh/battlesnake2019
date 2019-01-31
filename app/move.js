@@ -12,7 +12,9 @@ let previousMove = 0;
 // target closest reachable food
 const eat = (grid, data) => {
   if (p.STATUS) log.status("EATING");
-  let self = data.you;
+  const self = data.you;
+  const health = self.health;
+  const urgency = 1 - (health / 100);
   let target = null;
   let move = null;
   try {
@@ -30,9 +32,22 @@ const eat = (grid, data) => {
     }
   }
   catch (e) { log.error(`ex in move.eat: ${e}`); }
-  if (p.DEBUG) log.debug(`target in eat: ${pairToString(target)}`);
 
-  return buildMove(grid, data, move);
+  try {
+    if (target && move) {
+      const searchScore = p.ASTAR_SUCCESS * urgency;
+      if (p.DEBUG) log.debug(`target in eat: ${pairToString(target)}`);
+      return buildMove(grid, data, move, moveScore);
+    }
+    else {
+      return buildMove(grid, data, 0, 0);
+    }
+  }
+  catch (e) {
+    log.error(`ex in move.eat.buildmove: ${e}`);
+    return buildMove(grid, data, 0, 0); // uuughh
+  }
+
 };
 
 
@@ -59,7 +74,7 @@ const hunt = (grid, data) => {
   catch (e) { log.error(`ex in move.hunt: ${e}`); }
   if (p.DEBUG && target != null) log.debug(`target in move.hunt: ${pairToString(target)}`);
 
-  return buildMove(grid, data, move)
+  return buildMove(grid, data, move, p.ASTAR_SUCCESS)
 };
 
 
@@ -75,17 +90,17 @@ const killTime = (grid, data) => {
     if (move === null) move = suggestMove(k.RIGHT, self.body[0], grid);
   }
   catch (e) { log.error(`ex in move.killTime: ${e}`); }
-  return buildMove(grid, data, move);
+  return buildMove(grid, data, move, p.ASTAR_SUCCESS);
 }
 
 
 // build up move scores and return best move
-const buildMove = (grid, data, move) => {
+const buildMove = (grid, data, move = k.RIGHT, moveScore = 0) => {
   const self = data.you;
   let scores = [];
   try { 
     scores = baseMoveScores(grid, self);
-    scores[move] += p.ASTAR_SUCCESS;
+    scores[move] += moveScore;
    }
   catch (e) { log.error(`ex in move.buildMove.baseMoveScores: ${e}`); }
   
@@ -114,7 +129,10 @@ const buildMove = (grid, data, move) => {
         }
       }
     }
-    if (uniqueLargestDistanceMove) scores[largestDistanceMove] += p.ENEMY_DISTANCE;
+    if (uniqueLargestDistanceMove){
+      log.debug(`Adding ENEMY_DISTANCE score to move ${k.DIRECTION[largestDistanceMove]}`)
+      scores[largestDistanceMove] += p.ENEMY_DISTANCE;
+    }
   }
   catch (e) { log.error(`ex in move.buildMove.closestEnemyHead: ${e}`); }
 
