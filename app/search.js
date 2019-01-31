@@ -75,6 +75,8 @@ const fill = (direction, grid, { you }, constraints = []) => {
   let killZones = 0;
   let tails = 0;
   let foods = 0;
+  let warnings = 0;
+  let walls = 0;
 
   // iterate over all possible moves given current move
   while (openStack.length > 0) {
@@ -92,6 +94,12 @@ const fill = (direction, grid, { you }, constraints = []) => {
         break;
       case k.FOOD:
         foods++;
+        break;
+      case k.WALL_NEAR:
+        walls++;
+        break;
+      case k.WARNING:
+        warnings++;
         break;
       default:
     }
@@ -116,6 +124,8 @@ const fill = (direction, grid, { you }, constraints = []) => {
   score += foods * p.BASE_FOOD;
   score += enemyHeads * p.BASE_ENEMY_HEAD;
   score += killZones * p.BASE_KILL_ZONE;
+  score += warnings * p.BASE_WARNING;
+  score += walls * p.BASE_WALL_NEAR;
   if (p.DEBUG) log.debug(`Score in fill: ${score} for move ${k.DIRECTION[direction]}`);
   return score;
 }
@@ -204,7 +214,7 @@ const astar = (grid, data, destination, mode = k.FOOD) => {
         ) {
           temp = searchScores[temp.y][temp.x].previous;
         }
-        if (p.DEBUG) log.debug(`astar next move: ${pairToString(start)}`);
+        if (p.DEBUG) log.debug(`astar next move: ${pairToString(temp)}`);
         return calcDirection(start, temp);
       }
       // check if neighbor can be moved to
@@ -348,11 +358,8 @@ const pairToString = pair => {
 // check if space is out of bounds
 const outOfBounds = ({ x, y }, grid) => {
   try {
-    if (x < 0 || y < 0 || y >= grid.length || x >= grid[0].length) {
-      return true
-    } else {
-      return false
-    }
+    if (x < 0 || y < 0 || y >= grid.length || x >= grid[0].length) return true
+      else return false
   } catch (e) {
     log.error(`ex in search.outOfBounds: ${e}`);
     return true
@@ -363,21 +370,30 @@ const outOfBounds = ({ x, y }, grid) => {
 // check if move is not fatal
 const validMove = (direction, pos, grid) => {
   try {
-    if (outOfBounds(pos, grid)) return false;
-    switch (direction) {
-      case k.UP:
-        return grid[pos.y - 1][pos.x] <= k.DANGER;
-      case k.DOWN:
-        return grid[pos.y + 1][pos.x] <= k.DANGER;
-      case k.LEFT:
-        return grid[pos.y][pos.x - 1] <= k.DANGER;
-      case k.RIGHT:
-        return grid[pos.y][pos.x + 1] <= k.DANGER;
-    }
+    const newPos = applyMoveToPos(direction, pos);
+    if (outOfBounds(newPos, grid)) return false;
+    return grid[newPos.y][newPos.x] <- k.DANGER;
+  }
+  catch (e) {
+    log.error(`ex in search.validMove: ${e}\n{direction: ${direction}, pos: ${pairToString(pos)}, grid: ${grid}}`);
     return false;
   }
-  catch (e) { log.error(`ex in search.validMove: ${e}\n{direction: ${direction}, pos: ${pos}, grid: ${grid}}`); }
 };
+
+
+const applyMoveToPos = (move, pos) => {
+  switch (move) {
+    case k.UP:
+      return {x: pos.x, y: pos.y - 1};
+    case k.DOWN:
+      return {x: pos.x, y: pos.y + 1};
+    case k.LEFT:
+      return {x: pos.x - 1, y: pos.y};
+    case k.RIGHT:
+      return {x: pos.x + 1, y: pos.y};
+  }
+  return {x: 0, y: 0};
+}
 
 
 module.exports = {

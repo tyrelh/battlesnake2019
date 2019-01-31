@@ -11,26 +11,26 @@ const buildGrid = data => {
   let grid = initGrid(board.width, board.height, k.SPACE);
 
   try {
-    // mark edges WARNING
-    for (let y = 1; y < board.height - 1; y++) {
-      grid[y][0] = k.WARNING;
-      grid[y][board.width - 1] = k.WARNING;
+    // mark edges WALL_NEAR
+    for (let y = 0; y < board.height; y++) {
+      grid[y][0] = k.WALL_NEAR;
+      grid[y][board.width - 1] = k.WALL_NEAR;
     }
-    for (let x = 1; x < board.width - 1; x++) {
-      grid[0][x] = k.WARNING;
-      grid[board.height - 1][x] = k.WARNING;
+    for (let x = 0; x < board.width; x++) {
+      grid[0][x] = k.WALL_NEAR;
+      grid[board.height - 1][x] = k.WALL_NEAR;
     }
   }
   catch (e) { log.error(`ex in edges marking grid.buildGrid: ${e}`); }
 
-  try {
-    // mark corners DANGER
-    grid[0][0] = k.DANGER;
-    grid[0][board.width - 1] = k.DANGER;
-    grid[board.height - 1][0] = k.DANGER;
-    grid[board.height - 1][board.width - 1] = k.DANGER;
-  }
-  catch (e) { log.error(`ex in corners marking grid.buildGrid: ${e}`); }
+  // try {
+  //   // mark corners DANGER
+  //   grid[0][0] = k.DANGER;
+  //   grid[0][board.width - 1] = k.DANGER;
+  //   grid[board.height - 1][0] = k.DANGER;
+  //   grid[board.height - 1][board.width - 1] = k.DANGER;
+  // }
+  // catch (e) { log.error(`ex in corners marking grid.buildGrid: ${e}`); }
 
   // fill FOOD locations
   try {
@@ -45,7 +45,8 @@ const buildGrid = data => {
     board.snakes.forEach(({ id, name, health, body }) => {
       // fill SNAKE_BODY locations
       body.forEach(({ x, y }) => {
-        grid[y][x] = k.SNAKE_BODY;
+        if (id === self.id) grid[y][x] = k.YOUR_BODY;
+        else grid[y][x] = k.SNAKE_BODY;
       });
 
       // // skip filling own head and DANGER
@@ -149,8 +150,8 @@ const initGrid = (width, height, fillValue) => {
 }
 
 const mapGridSpaceToChar = space => {
-  // KILL_ZONE: 0, SPACE: 1, TAIL: 2, FOOD: 3, WARNING: 4, DANGER: 5, SNAKE_BODY: 6, ENEMY_HEAD: 7
-  const chars = ["!", " ", "T", "O", "x", "X", "S", "H", "@"]
+  // KILL_ZONE: 0, SPACE: 1, TAIL: 2, FOOD: 3, WALL_NEAR: 4, WARNING: 5, DANGER: 6, SNAKE_BODY: 7, ENEMY_HEAD: 8
+  const chars = ["!", " ", "T", "O", "'", "x", "X", "S", "Y", "H", "@"]
   return chars[space]
 }
 
