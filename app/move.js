@@ -36,8 +36,11 @@ const eat = (grid, data) => {
   try {
     if (target && move) {
       const searchScore = p.ASTAR_SUCCESS * urgency;
-      if (p.DEBUG) log.debug(`target in eat: ${pairToString(target)}`);
-      return buildMove(grid, data, move, moveScore);
+      if (p.DEBUG) {
+        log.debug(`target in eat: ${pairToString(target)}`);
+        log.debug(`Score for a* move: ${k.DIRECTION[move]}: ${searchScore}`);
+      }
+      return buildMove(grid, data, move, searchScore);
     }
     else {
       return buildMove(grid, data, 0, 0);
@@ -45,7 +48,7 @@ const eat = (grid, data) => {
   }
   catch (e) {
     log.error(`ex in move.eat.buildmove: ${e}`);
-    return buildMove(grid, data, 0, 0); // uuughh
+    return buildMove(grid, data, move, p.ASTAR_SUCCESS);
   }
 
 };
