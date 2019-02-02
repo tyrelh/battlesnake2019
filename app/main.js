@@ -20,7 +20,7 @@ const move = (req, res) => {
   const data = req.body;
   const health = data.you.health;
 
-  if (p.STATUS) log.status(`\n\n############################### MOVE ${data.turn}\n`);
+  if (p.STATUS) log.status(`\n\n####################################### MOVE ${data.turn}`);
 
   let grid = [];
   try{ grid = g.buildGrid(data); }
@@ -64,7 +64,7 @@ const start = (req, res) => {
   // ensure previous game logs are cleared
   log.initGameLogs();
   if (p.STATUS) {
-    log.status(`############################### STARTING GAME ${req.body.game.id}\n\n`);
+    log.status(`####################################### STARTING GAME ${req.body.game.id}\n\n`);
     log.status(`My snake id is ${req.body.you.id}`);
     slowest = 0;
     slowestMove = 0;
@@ -72,7 +72,9 @@ const start = (req, res) => {
   const blue = "#3b94e3";
   const pink = "#cc4ff1";
   const green = "#2be384";
-  return res.json({ color: green });
+  const green2 = "#02B07C";
+  const purple = "#9557E0";
+  return res.json({ color: green2 });
 };
 
 
