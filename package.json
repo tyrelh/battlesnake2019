@@ -12,6 +12,7 @@
     }
   ],
   "dependencies": {
+    "@types/node": "^10.12.21",
     "body-parser": "^1.18.3",
     "cross-env": "^5.2.0",
     "express": "^4.16.4",
