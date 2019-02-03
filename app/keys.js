@@ -9,7 +9,8 @@ module.exports = {
   DANGER: 6,
   SNAKE_BODY: 7,
   YOUR_BODY: 8,
-  ENEMY_HEAD: 9,
+  SMALL_HEAD: 9,
+  ENEMY_HEAD: 10,
   TYPE: [
     "KILL_ZONE",
     "SPACE",
@@ -20,8 +21,10 @@ module.exports = {
     "DANGER",
     "SNAKE_BODY",
     "YOUR_BODY",
+    "SMALL_HEAD",
     "ENEMY_HEAD"
   ],
+  MAP: ["!", " ", "T", "o", ".", "x", "X", "s", "Y", "S", "E", "@"],
 
   // directions
   DIRECTION: [
