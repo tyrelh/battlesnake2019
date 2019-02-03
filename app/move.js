@@ -17,13 +17,13 @@ const eat = (grid, data) => {
   const urgency = 1 - (health / 100);
   let target = null;
   let move = null;
+  const gridCopy = g.copyGrid(grid);
   try {
     target = t.closestFood(grid, self.body[0]);
     move = search.astar(grid, data, target, k.FOOD);
     while (move === null) {
-      grid[target.y][target.x] = k.SPACE;
-      target = t.closestFood(grid, self.body[0]);
-      if (p.DEBUG) log.debug(pairToString(target));
+      gridCopy[target.y][target.x] = k.SPACE;
+      target = t.closestFood(gridCopy, self.body[0]);
       if (target === null) {
         move = suggestMove(k.RIGHT, self.body[0], grid);
         break;
@@ -31,7 +31,7 @@ const eat = (grid, data) => {
       move = search.astar(grid, data, target, k.FOOD);
     }
   }
-  catch (e) { log.error(`ex in move.eat: ${e}`); }
+  catch (e) { log.error(`ex in move.eat: ${e}`, data.turn); }
 
   try {
     if (target && move) {
@@ -47,7 +47,7 @@ const eat = (grid, data) => {
     }
   }
   catch (e) {
-    log.error(`ex in move.eat.buildmove: ${e}`);
+    log.error(`ex in move.eat.buildmove: ${e}`, data.turn);
     return buildMove(grid, data, move, p.ASTAR_SUCCESS);
   }
 
@@ -60,13 +60,13 @@ const hunt = (grid, data) => {
   let self = data.you;
   let target = null;
   let move = null;
+  const gridCopy = g.copyGrid(grid);
   try {
     target = t.closestKillableEnemy(grid, self.body[0]);
     move = search.astar(grid, data, target, k.KILL_ZONE);
     while (move === null) {
-      grid[target.y][target.x] = k.SPACE;
-      target = t.closestKillableEnemy(grid, self.body[0]);
-      // if (p.DEBUG) log.debug(`pairToString(target)`);
+      gridCopy[target.y][target.x] = k.SPACE;
+      target = t.closestKillableEnemy(gridCopy, self.body[0]);
       if (target === null) {
         move = suggestMove(k.RIGHT, self.body[0], grid);
         break;
@@ -74,7 +74,7 @@ const hunt = (grid, data) => {
       move = search.astar(grid, data, target, k.KILL_ZONE);
     }
   }
-  catch (e) { log.error(`ex in move.hunt: ${e}`); }
+  catch (e) { log.error(`ex in move.hunt: ${e}`, data.turn); }
   if (p.DEBUG && target != null) {
     log.debug(`target in move.hunt: ${pairToString(target)}`);
     log.debug(`Score for a* move: ${k.DIRECTION[move]}: ${p.ASTAR_SUCCESS}`);
@@ -87,15 +87,32 @@ const hunt = (grid, data) => {
 // track own tail
 const killTime = (grid, data) => {
   if (p.STATUS) log.status("KILLING TIME");
-  let move = k.UP;
+  let move = null;
   const self = data.you;
   const len = self.body.length
   const tail = self.body[len - 1]
-  try {
-    move = search.astar(grid, data, tail, k.TAIL);
-    if (move === null) move = suggestMove(k.RIGHT, self.body[0], grid);
+
+  try { move = search.astar(grid, data, tail, k.TAIL); }
+  catch (e) { log.error(`ex in move.killTime.tail: ${e}`, data.turn); }
+
+  if (move === null ) {
+    try {
+      let target = t.closestFood(grid, self.body[0]);
+      move = search.astar(grid, data, target, k.FOOD);
+      while (move === null) {
+        gridCopy[target.y][target.x] = k.SPACE;
+        target = t.closestFood(gridCopy, self.body[0]);
+        if (target === null) {
+          move = suggestMove(k.RIGHT, self.body[0], grid);
+          break;
+        }
+        move = search.astar(grid, data, target, k.FOOD);
+      }
+    }
+    catch (e) { log.error(`ex in move.killTime.backupFoodSearch: ${e}`, data.turn); }
   }
-  catch (e) { log.error(`ex in move.killTime: ${e}`); }
+
+  if (p.DEBUG && move != null) log.debug(`Score for a* move: ${k.DIRECTION[move]}: ${p.ASTAR_SUCCESS}`);
   return buildMove(grid, data, move, p.ASTAR_SUCCESS);
 }
 
@@ -108,7 +125,7 @@ const buildMove = (grid, data, move = k.RIGHT, moveScore = 0) => {
     scores = baseMoveScores(grid, self);
     scores[move] += moveScore;
    }
-  catch (e) { log.error(`ex in move.buildMove.baseMoveScores: ${e}`); }
+  catch (e) { log.error(`ex in move.buildMove.baseMoveScores: ${e}`, data.turn); }
   
   try {
     for (let m = 0; m < 4; m++) {
@@ -116,7 +133,7 @@ const buildMove = (grid, data, move = k.RIGHT, moveScore = 0) => {
       scores[m] += search.fill(m, grid, data, [k.KILL_ZONE, k.DANGER, k.WARNING]);
     }
   }
-  catch (e) { log.error(`ex in move.buildMove.fill: ${e}`); }
+  catch (e) { log.error(`ex in move.buildMove.fill: ${e}`, data.turn); }
 
   try {
     let enemyDistances = [0,0,0,0];
@@ -140,11 +157,11 @@ const buildMove = (grid, data, move = k.RIGHT, moveScore = 0) => {
       scores[largestDistanceMove] += p.ENEMY_DISTANCE;
     }
   }
-  catch (e) { log.error(`ex in move.buildMove.closestEnemyHead: ${e}`); }
+  catch (e) { log.error(`ex in move.buildMove.closestEnemyHead: ${e}`, data.turn); }
 
-  if (previousMove != null) {
-    scores[previousMove] += p.BASE_PREVIOUS;
-  }
+  // if (previousMove != null) {
+  //   scores[previousMove] += p.BASE_PREVIOUS;
+  // }
   if (p.STATUS) log.status(`Move scores: ${scoresToString(scores)}`);
   const bestMove = highestScoreMove(scores);
   previousMove = bestMove;
