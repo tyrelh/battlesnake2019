@@ -66,7 +66,7 @@ const hunt = (grid, data) => {
     while (move === null) {
       grid[target.y][target.x] = k.SPACE;
       target = t.closestKillableEnemy(grid, self.body[0]);
-      if (p.DEBUG) log.debug(pairToString(target));
+      // if (p.DEBUG) log.debug(`pairToString(target)`);
       if (target === null) {
         move = suggestMove(k.RIGHT, self.body[0], grid);
         break;
@@ -75,7 +75,10 @@ const hunt = (grid, data) => {
     }
   }
   catch (e) { log.error(`ex in move.hunt: ${e}`); }
-  if (p.DEBUG && target != null) log.debug(`target in move.hunt: ${pairToString(target)}`);
+  if (p.DEBUG && target != null) {
+    log.debug(`target in move.hunt: ${pairToString(target)}`);
+    log.debug(`Score for a* move: ${k.DIRECTION[move]}: ${p.ASTAR_SUCCESS}`);
+  }
 
   return buildMove(grid, data, move, p.ASTAR_SUCCESS)
 };
@@ -86,10 +89,10 @@ const killTime = (grid, data) => {
   if (p.STATUS) log.status("KILLING TIME");
   let move = k.UP;
   const self = data.you;
-  let len = self.body.length
+  const len = self.body.length
+  const tail = self.body[len - 1]
   try {
-    let target = self.body[len - 1];
-    move = search.astar(grid, data, target, k.TAIL);
+    move = search.astar(grid, data, tail, k.TAIL);
     if (move === null) move = suggestMove(k.RIGHT, self.body[0], grid);
   }
   catch (e) { log.error(`ex in move.killTime: ${e}`); }
@@ -172,6 +175,7 @@ const baseMoveScores = (grid, self) => {
   scores[k.DOWN] += baseScoreForBoardPosition(head.x, head.y + 1, grid);
   scores[k.LEFT] += baseScoreForBoardPosition(head.x - 1, head.y, grid);
   scores[k.RIGHT] += baseScoreForBoardPosition(head.x + 1, head.y, grid);
+  if (p.DEBUG) log.debug(`Base move scores: {up: ${scores[k.UP]}, down: ${scores[k.DOWN]}, left: ${scores[k.LEFT]}, right: ${scores[k.RIGHT]}}`)
   return scores;
 };
 
@@ -184,20 +188,21 @@ const baseScoreForBoardPosition = (x, y, grid) => {
     // types of spaces
     switch (grid[y][x]) {
       case k.SPACE:
-        return p.BASE_SPACE;
       case k.TAIL:
-        return p.BASE_TAIL;
+        return p.BASE_SPACE;
       case k.FOOD:
         return p.BASE_FOOD;
       case k.KILL_ZONE:
         return p.BASE_KILL_ZONE;
+      case k.WALL_NEAR:
+        return p.BASE_WALL_NEAR;
       case k.WARNING:
         return p.BASE_WARNING;
       case k.DANGER:
         return p.BASE_DANGER;
-      // default includes SNAKE_BODY and ENEMY_HEAD
+      // default includes SNAKE_BODY, ENEMY_HEAD and YOUR_BODY
       default:
-        return p.BASE_BAD;
+        return p.FORGET_ABOUT_IT;
     }
   }
   catch (e) { log.error(`ex in move.baseScoreForBoardPosition: ${e}`); }
