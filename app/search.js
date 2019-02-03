@@ -9,6 +9,7 @@ const log = require("./logger");
 
 // fill an area
 const fill = (direction, grid, { you }, constraints = []) => {
+  let area = 0;
   let closedGrid;
   let openGrid;
   closedGrid = g.initGrid(grid[0].length, grid.length, false);
@@ -25,6 +26,7 @@ const fill = (direction, grid, { you }, constraints = []) => {
       if (!outOfBounds(pos, grid) && !inGrid(pos, closedGrid) && !inGrid(pos, openGrid)) {
         if (inGrid(pos, grid) <= k.DANGER) {
           for (let i = 0; i < constraints.length; i++) {
+            if (area === 0 && inGrid(pos, grid) === k.KILL_ZONE) break; // if very first cell you test is a killzone, thats fine, dont return
             if (inGrid(pos, grid) === constraints[i]) return;
           }
           openStack.push(pos);
@@ -70,7 +72,6 @@ const fill = (direction, grid, { you }, constraints = []) => {
   addToClosed(current);
 
   // things to track for this move
-  let area = 0;
   let enemyHeads = 0;
   let killZones = 0;
   let tails = 0;
@@ -125,7 +126,7 @@ const fill = (direction, grid, { you }, constraints = []) => {
   score += enemyHeads * p.BASE_ENEMY_HEAD;
   score += killZones * p.BASE_KILL_ZONE;
   score += warnings * p.BASE_WARNING;
-  score += walls * (p.BASE_WALL_NEAR * 0.5);
+  score += walls * (p.BASE_WALL_NEAR * 0.4);
   if (p.DEBUG) log.debug(`Score in fill: ${score} for move ${k.DIRECTION[direction]}. Area: ${area}`);
   return score;
 }
