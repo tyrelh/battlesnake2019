@@ -10,7 +10,7 @@ module.exports = {
   SURVIVAL_MIN: SURVIVAL_MIN,
   INITIAL_TIME_KILL: 100 - SURVIVAL_MIN,
   // scores for moves
-  ASTAR_SUCCESS: 9.0,   // started @ 10   -+
+  ASTAR_SUCCESS: 9.1,   // started @ 10   -++
   ENEMY_DISTANCE: 1.5,
   BASE_KILL_ZONE: 2.1,
   BASE_FOOD: 0.9,
