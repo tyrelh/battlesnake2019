@@ -124,8 +124,13 @@ const getDistance = (a, b) => {
 
 // print grid to logs
 const printGrid = grid => {
+  let xAxis = "  ";
+  for (let x = 0; x < grid[0].length; x++) {
+    xAxis += ` ${x % 10}`
+  }
+  log.status(`${xAxis}\n`);
   for (let i = 0; i < grid.length; i++) {
-    let row = "";
+    let row = `${i % 10} `;
     for (let j = 0; j < grid[0].length; j++) {
       row += ` ${mapGridSpaceToChar(grid[i][j])}`;
     }
@@ -151,7 +156,7 @@ const initGrid = (width, height, fillValue) => {
 
 const mapGridSpaceToChar = space => {
   // KILL_ZONE: 0, SPACE: 1, TAIL: 2, FOOD: 3, WALL_NEAR: 4, WARNING: 5, DANGER: 6, SNAKE_BODY: 7, ENEMY_HEAD: 8
-  const chars = ["!", " ", "T", "O", "'", "x", "X", "S", "Y", "H", "@"]
+  const chars = ["!", " ", "T", "O", "'", "x", "X", "s", "Y", "S", "@"]
   return chars[space]
 }
 
