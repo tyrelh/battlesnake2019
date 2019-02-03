@@ -1,23 +1,25 @@
 const log = require("./logger");
 const p = require("./params");
 
-const location = ({ you }) => {
+const location = data => {
+  const you = data.you;
   try { return {x: you.body[0].x, y: you.body[0].y}; }
-  catch (e) { log.error(`ex in self.location: ${e}`); }
+  catch (e) { log.error(`ex in self.location: ${e}`, data.turn); }
   return {x: 0, y: 0};
 }
 
-const tailLocation = ({ you }) => {
+const tailLocation = data => {
+  const you = data.you;
   try {
     const i = you.body.length - 1;
     return {x: you.body[i].x, y: you.body[i].y}
   }
-  catch (e) { log.error(`ex in self.tailLocation: ${e}`); }
+  catch (e) { log.error(`ex in self.tailLocation: ${e}`, data.turn); }
   return {x: 0, y: 0};
 }
 
 // will return if you are the largest snake on the board
-const biggestSnake = (data) => {
+const biggestSnake = data => {
   try {
     const me = data.you.id;
     const myLength = data.you.body.length;
@@ -29,7 +31,7 @@ const biggestSnake = (data) => {
     }
     return true;
   }
-  catch (e) { log.error(`!!! ex in self.biggestSnake: ${e}`); }
+  catch (e) { log.error(`!!! ex in self.biggestSnake: ${e}`, data.turn); }
   return false;
 }
 

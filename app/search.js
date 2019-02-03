@@ -8,7 +8,8 @@ const log = require("./logger");
 
 
 // fill an area
-const fill = (direction, grid, { you }, constraints = []) => {
+const fill = (direction, grid, data, constraints = []) => {
+  const you = data.you;
   let area = 0;
   let closedGrid;
   let openGrid;
@@ -18,7 +19,7 @@ const fill = (direction, grid, { you }, constraints = []) => {
 
   const inGrid = (pos, grd) => {
     try { return grd[pos.y][pos.x]; }
-    catch (e) { log.error(`ex in search.fill.inGrid: ${e}`); }
+    catch (e) { log.error(`ex in search.fill.inGrid: ${e}`, data.turn); }
   };
 
   const addToOpen = pos => {
@@ -34,7 +35,7 @@ const fill = (direction, grid, { you }, constraints = []) => {
         }
       }
     }
-    catch (e) { log.error(`ex in search.fill.addToOpen: ${e}`); }
+    catch (e) { log.error(`ex in search.fill.addToOpen: ${e}`, data.turn); }
   };
 
   const removeFromOpen = () => {
@@ -45,7 +46,7 @@ const fill = (direction, grid, { you }, constraints = []) => {
       openGrid[pos.y][pos.x] = false;
       return pos;
       }
-      catch (e) { log.error(`ex in search.fill.removeFromOpen: ${e}`); }
+      catch (e) { log.error(`ex in search.fill.removeFromOpen: ${e}`, data.turn); }
   };
 
   const addToClosed = pos => {
@@ -269,7 +270,7 @@ const distanceToEnemy = (direction, grid, data) => {
       return g.getDistance(closestEnemyHead, you.body[0]);
     }
   }
-  catch (e) { log.error(`ex in search.distanceToEnemy: ${e}`); }
+  catch (e) { log.error(`ex in search.distanceToEnemy: ${e}`, data.turn); }
   return 0;
 }
 

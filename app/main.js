@@ -25,7 +25,7 @@ const move = (req, res) => {
 
   let grid = [];
   try{ grid = g.buildGrid(data); }
-  catch (e) { log.error(`ex in main.buildGrid: ${e}`); }
+  catch (e) { log.error(`ex in main.buildGrid: ${e}`, turn); }
   
   let move = null;
   if (p.DEBUG) log.status(`biggest snake ? ${s.biggestSnake(data)}`);
@@ -33,26 +33,26 @@ const move = (req, res) => {
   // if you are hungry or small you gotta eat
   if (health < p.SURVIVAL_MIN) {
     try { move = m.eat(grid, data); }
-    catch (e) { log.error(`ex in main.survivalMin: ${e}`); }
+    catch (e) { log.error(`ex in main.survivalMin: ${e}`, turn); }
   }
   // start early game by killing some time, to let dumb snakes die
   else if (turn < p.INITIAL_TIME_KILL) {
     try { move = m.killTime(grid, data); }
-    catch (e) { log.error(`ex in main.initialKillTime: ${e}`)}
+    catch (e) { log.error(`ex in main.initialKillTime: ${e}`, turn)}
   }
   else if (!s.biggestSnake(data)) {
     try { move = m.eat(grid, data); }
-    catch (e) { log.error(`ex in main.notBiggest: ${e}`); }
+    catch (e) { log.error(`ex in main.notBiggest: ${e}`, turn); }
   }
   // if you are the biggest you can go on the hunt
   else if (s.biggestSnake(data)) {
     try { move = m.hunt(grid, data); }
-    catch (e) { log.error(`ex in main.biggest: ${e}`)}
+    catch (e) { log.error(`ex in main.biggest: ${e}`, turn)}
   }
   // backup plan?
   if (move === null) {
     try { move = m.eat(grid, data); }
-    catch (e) { log.error(`ex in main.backupPlan: ${e}`); }
+    catch (e) { log.error(`ex in main.backupPlan: ${e}`, turn); }
   }
   
   if (p.STATUS) {
