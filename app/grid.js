@@ -21,7 +21,7 @@ const buildGrid = data => {
       grid[board.height - 1][x] = k.WALL_NEAR;
     }
   }
-  catch (e) { log.error(`ex in edges marking grid.buildGrid: ${e}`); }
+  catch (e) { log.error(`ex in edges marking grid.buildGrid: ${e}`, data.turn); }
 
   // try {
   //   // mark corners DANGER
@@ -30,7 +30,7 @@ const buildGrid = data => {
   //   grid[board.height - 1][0] = k.DANGER;
   //   grid[board.height - 1][board.width - 1] = k.DANGER;
   // }
-  // catch (e) { log.error(`ex in corners marking grid.buildGrid: ${e}`); }
+  // catch (e) { log.error(`ex in corners marking grid.buildGrid: ${e}`, data.turn); }
 
   // fill FOOD locations
   try {
@@ -38,7 +38,7 @@ const buildGrid = data => {
       grid[y][x] = k.FOOD;
     });
   }
-  catch (e) { log.error(`ex in food marking grid.buildGrid: ${e}`); }
+  catch (e) { log.error(`ex in food marking grid.buildGrid: ${e}`, data.turn); }
 
   try {
     // fill snake locations
@@ -54,7 +54,16 @@ const buildGrid = data => {
 
       // fill ENEMY_HEAD and DANGER locations
       const head = body[0];
-      if (id != self.id) grid[head.y][head.x] = k.ENEMY_HEAD;
+      const dangerSnake = body.length >= self.body.length
+      if (id != self.id) {
+        if (dangerSnake) {
+          grid[head.y][head.x] = k.ENEMY_HEAD;
+        }
+        else {
+          grid[head.y][head.x] = k.SMALL_HEAD;
+        }
+        
+      }
 
       // mark DANGER or KILL_ZONE around enemy head based on snake length
       // also check if tail can be TAIL or SNAKE_BODY
@@ -111,7 +120,7 @@ const buildGrid = data => {
       }
     });
   }
-  catch (e) { log.error(`ex in snakes marking grid.buildGrid: ${e}`); }
+  catch (e) { log.error(`ex in snakes marking grid.buildGrid: ${e}`, data.turn); }
 
   if (p.DEBUG_MAPS) printGrid(grid);
   return grid;
@@ -132,7 +141,7 @@ const printGrid = grid => {
   for (let i = 0; i < grid.length; i++) {
     let row = `${i % 10} `;
     for (let j = 0; j < grid[0].length; j++) {
-      row += ` ${mapGridSpaceToChar(grid[i][j])}`;
+      row += ` ${k.MAP[grid[i][j]]}`;
     }
     log.status(row);
   }
@@ -150,14 +159,21 @@ const initGrid = (width, height, fillValue) => {
       }
     }
   }
-  catch (e) { log.error(`ex in grid.initGrid: ${e}`); }
+  catch (e) { log.error(`ex in grid.initGrid: ${e}`, data.turn); }
   return grid;
 }
 
-const mapGridSpaceToChar = space => {
-  // KILL_ZONE: 0, SPACE: 1, TAIL: 2, FOOD: 3, WALL_NEAR: 4, WARNING: 5, DANGER: 6, SNAKE_BODY: 7, ENEMY_HEAD: 8
-  const chars = ["!", " ", "T", "O", "'", "x", "X", "s", "Y", "S", "@"]
-  return chars[space]
+// return a deep copy of game grid
+const copyGrid = (grid) => {
+  let gridCopy;
+  gridCopy = new Array(grid.length);
+  for (let i = 0; i < grid.length; i++) {
+    gridCopy[i] = new Array(grid[0].length);
+    for (let j = 0 ;j< grid[0].length; j++) {
+      gridCopy[i][j] = grid[i][j]
+    }
+  }
+  return gridCopy;
 }
 
 // test if cells are the same
@@ -167,5 +183,6 @@ module.exports = {
   getDistance: getDistance,
   buildGrid: buildGrid,
   printGrid: printGrid,
-  initGrid: initGrid
+  initGrid: initGrid,
+  copyGrid: copyGrid
 };
