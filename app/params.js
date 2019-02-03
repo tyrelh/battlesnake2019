@@ -6,7 +6,7 @@ module.exports = {
   DEBUG_MAPS: true,
   CONSOLE_LOG: true,
   // basic game params
-  INITIAL_FEEDING: 3,
+  INITIAL_FEEDING: 5,
   SURVIVAL_MIN: SURVIVAL_MIN,
   INITIAL_TIME_KILL: 100 - SURVIVAL_MIN,
   // scores for moves
@@ -17,7 +17,7 @@ module.exports = {
   BASE_TAIL: 7.9,       // started @  0.4 +
   BASE_SPACE: 0.2,      // started @  0.1 -
   BASE_WALL_NEAR: -0.9, // started @ -0.1 ----
-  BASE_WARNING: -2.5,   // started @  0.2 -+
+  BASE_WARNING: -2.6,   // started @  0.2 -+-
   BASE_DANGER: -8.9,    // started @  0.1 --
   BASE_ENEMY_HEAD: -11, // started @ -2   -
   BASE_BAD: -10.0,
