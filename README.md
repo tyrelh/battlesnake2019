@@ -23,6 +23,7 @@ You can also deploy this repo directly to Heroku by clicking this link. You will
 
 ## Changelog
 * **v2.3.2:**
+  * Add behaviour to kill time in the early game.
   * Add search score scaling to eating logic based on health level.
   * Mark self different than other snakes. Mostly for debugging.
   * Mark spaces near wall uniquely with their own score bais.
