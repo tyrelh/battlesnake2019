@@ -125,8 +125,8 @@ const fill = (direction, grid, { you }, constraints = []) => {
   score += enemyHeads * p.BASE_ENEMY_HEAD;
   score += killZones * p.BASE_KILL_ZONE;
   score += warnings * p.BASE_WARNING;
-  score += walls * p.BASE_WALL_NEAR;
-  if (p.DEBUG) log.debug(`Score in fill: ${score} for move ${k.DIRECTION[direction]}`);
+  score += walls * (p.BASE_WALL_NEAR * 0.5);
+  if (p.DEBUG) log.debug(`Score in fill: ${score} for move ${k.DIRECTION[direction]}. Area: ${area}`);
   return score;
 }
 
