@@ -7,6 +7,8 @@ const search = require("./search")
 const log = require("./logger");
 
 let previousMove = 0;
+const wallNearBaseMoveMultiplier = 1.6;
+
 
 
 // target closest reachable food
@@ -50,17 +52,17 @@ const eat = (grid, data) => {
     log.error(`ex in move.eat.buildmove: ${e}`, data.turn);
     return buildMove(grid, data, move, p.ASTAR_SUCCESS);
   }
-
 };
+
 
 
 // track closest KILL_ZONE
 const hunt = (grid, data) => {
   if (p.STATUS) log.status("HUNTING");
-  let self = data.you;
+  const self = data.you;
   let target = null;
   let move = null;
-  const gridCopy = g.copyGrid(grid);
+  let gridCopy = g.copyGrid(grid);
   try {
     target = t.closestKillableEnemy(grid, self.body[0]);
     move = search.astar(grid, data, target, k.KILL_ZONE);
@@ -79,9 +81,9 @@ const hunt = (grid, data) => {
     log.debug(`target in move.hunt: ${pairToString(target)}`);
     log.debug(`Score for a* move: ${k.DIRECTION[move]}: ${p.ASTAR_SUCCESS}`);
   }
-
   return buildMove(grid, data, move, p.ASTAR_SUCCESS)
 };
+
 
 
 // track own tail
@@ -91,6 +93,7 @@ const killTime = (grid, data) => {
   const self = data.you;
   const len = self.body.length
   const tail = self.body[len - 1]
+  let gridCopy = g.copyGrid(grid);
 
   try { move = search.astar(grid, data, tail, k.TAIL); }
   catch (e) { log.error(`ex in move.killTime.tail: ${e}`, data.turn); }
@@ -117,16 +120,20 @@ const killTime = (grid, data) => {
 }
 
 
+
 // build up move scores and return best move
 const buildMove = (grid, data, move = k.RIGHT, moveScore = 0) => {
   const self = data.you;
+  // grid = search.enemySearchForFood(grid, data);
   let scores = [];
+  // get base next move scores
   try { 
     scores = baseMoveScores(grid, self);
     scores[move] += moveScore;
    }
   catch (e) { log.error(`ex in move.buildMove.baseMoveScores: ${e}`, data.turn); }
   
+  // get flood fill scores for each move
   try {
     for (let m = 0; m < 4; m++) {
       scores[m] += search.fill(m, grid, data);
@@ -135,13 +142,15 @@ const buildMove = (grid, data, move = k.RIGHT, moveScore = 0) => {
   }
   catch (e) { log.error(`ex in move.buildMove.fill: ${e}`, data.turn); }
 
+  // see if a particular move will bring you farther from dangerous snake
   try {
-    let enemyDistances = [0,0,0,0];
+    let enemyDistances = [0, 0, 0, 0];
     let largestDistance = 0;
     let largestDistanceMove = 0;
     let uniqueLargestDistanceMove = false;
     for (let m = 0; m < 4; m++) {
-      const currentDistance = search.distanceToEnemy(m, grid, data);
+      const currentDistance = search.distanceToEnemy(m, grid, data, k.ENEMY_HEAD);
+      log.debug(`Distance to closest dangerous snake for move ${k.DIRECTION[m]} is ${currentDistance}`);
       if (enemyDistances[m] < currentDistance) {
         enemyDistances[m] = currentDistance;
         if (largestDistance === currentDistance) uniqueLargestDistanceMove = false;
@@ -153,20 +162,45 @@ const buildMove = (grid, data, move = k.RIGHT, moveScore = 0) => {
       }
     }
     if (uniqueLargestDistanceMove){
-      log.debug(`Adding ENEMY_DISTANCE score to move ${k.DIRECTION[largestDistanceMove]}`)
+      log.debug(`Add ENEMY_DISTANCE ${p.ENEMY_DISTANCE} to move ${k.DIRECTION[largestDistanceMove]} for farther ENEMY_HEAD`);
       scores[largestDistanceMove] += p.ENEMY_DISTANCE;
     }
   }
   catch (e) { log.error(`ex in move.buildMove.closestEnemyHead: ${e}`, data.turn); }
 
-  // if (previousMove != null) {
-  //   scores[previousMove] += p.BASE_PREVIOUS;
-  // }
+  // see if a particular move will bring you closer to a killable snake
+  try {
+    let enemyDistances = [9999, 9999, 9999, 9999];
+    let smallestDistance = 9999;
+    let smallestDistanceMove = 0;
+    let uniqueSmallestDistanceMove = false;
+    for (let m = 0; m < 4; m++) {
+      const currentDistance = search.distanceToEnemy(m, grid, data, k.KILL_ZONE);
+      log.debug(`Distance to closest killable snake for move ${k.DIRECTION[m]} is ${currentDistance}`);
+      if (currentDistance === 0) continue;
+      if (enemyDistances[m] > currentDistance) {
+        enemyDistances[m] = currentDistance;
+        if (smallestDistance === currentDistance) uniqueSmallestDistanceMove = false;
+        else if (smallestDistance > currentDistance) {
+          smallestDistance = currentDistance;
+          smallestDistanceMove = m;
+          uniqueSmallestDistanceMove = true;
+        }
+      }
+    }
+    if (uniqueSmallestDistanceMove){
+      log.debug(`Add ENEMY_DISTANCE ${p.ENEMY_DISTANCE} to move ${k.DIRECTION[smallestDistanceMove]} for closer KILL_ZONE`);
+      scores[smallestDistanceMove] += p.ENEMY_DISTANCE;
+    }
+  }
+  catch (e) { log.error(`ex in move.buildMove.closestEnemyHead: ${e}`, data.turn); }
+
   if (p.STATUS) log.status(`Move scores: ${scoresToString(scores)}`);
   const bestMove = highestScoreMove(scores);
   previousMove = bestMove;
   return bestMove
 }
+
 
 
 // get highest score move
@@ -183,6 +217,7 @@ const highestScoreMove = scores => {
 }
 
 
+
 // get base score for each possible move
 const baseMoveScores = (grid, self) => {
   const head = self.body[0];
@@ -195,6 +230,7 @@ const baseMoveScores = (grid, self) => {
   if (p.DEBUG) log.debug(`Base move scores: {up: ${scores[k.UP]}, down: ${scores[k.DOWN]}, left: ${scores[k.LEFT]}, right: ${scores[k.RIGHT]}}`)
   return scores;
 };
+
 
 
 // return a base score depending on what is currently in that position on the board
@@ -212,7 +248,7 @@ const baseScoreForBoardPosition = (x, y, grid) => {
       case k.KILL_ZONE:
         return p.BASE_KILL_ZONE;
       case k.WALL_NEAR:
-        return p.BASE_WALL_NEAR;
+        return p.BASE_WALL_NEAR * wallNearBaseMoveMultiplier;
       case k.WARNING:
         return p.BASE_WARNING;
       case k.DANGER:
@@ -224,6 +260,7 @@ const baseScoreForBoardPosition = (x, y, grid) => {
   }
   catch (e) { log.error(`ex in move.baseScoreForBoardPosition: ${e}`); }
 };
+
 
 
 // check if move is not fatal
@@ -244,6 +281,7 @@ const validMove = (direction, pos, grid) => {
   }
   catch (e) { log.error(`ex in move.validMove: ${e}`); }
 };
+
 
 
 // if move is no good, suggest a similar move that is valid
@@ -281,11 +319,13 @@ const suggestMove = (direction, pos, grid) => {
 };
 
 
+
 // return pair as string
 const pairToString = pair => {
   try { return `{x: ${pair.x}, y: ${pair.y}}`; }
   catch (e) { log.error(`ex in move.pairToString: ${e}`); }
 };
+
 
 
 // return scores array in a human readable string
@@ -295,6 +335,7 @@ const scoresToString = scores => {
   }
   catch (e) { log.error(`ex in move.scoresToString: ${e}`); }
 }
+
 
 
 module.exports = {
