@@ -2,20 +2,20 @@ const k = require("./keys");
 const g = require("./grid");
 const log = require("./logger")
 
-const closestFood = (grid, self) => {
-  return closestTarget(grid, self, k.FOOD);
+const closestFood = (grid, pos) => {
+  return closestTarget(grid, pos, k.FOOD);
 };
 
-const closestKillableEnemy = (grid, self) => {
-  return closestTarget(grid, self, k.KILL_ZONE);
+const closestKillableEnemy = (grid, pos) => {
+  return closestTarget(grid, pos, k.KILL_ZONE);
 }
 
-const closestEnemyHead = (grid, self) => {
-  return closestTarget(grid, self, k.ENEMY_HEAD);
+const closestEnemyHead = (grid, pos) => {
+  return closestTarget(grid, pos, k.ENEMY_HEAD);
 }
 
 // simple search for closest target of a specified grid type
-const closestTarget = (grid, self, targetType) => {
+const closestTarget = (grid, pos, targetType) => {
   try {
     let closestTarget = null;
     let closestDistance = 9999;
@@ -23,7 +23,7 @@ const closestTarget = (grid, self, targetType) => {
       for (let j = 0; j < grid[0].length; j++) {
         if (grid[i][j] === targetType) {
           const target = { x: j, y: i };
-          const distance = g.getDistance(self, target);
+          const distance = g.getDistance(pos, target);
           if (distance < closestDistance) {
             closestTarget = target;
             closestDistance = distance;
@@ -40,5 +40,6 @@ const closestTarget = (grid, self, targetType) => {
 module.exports = {
   closestFood: closestFood,
   closestKillableEnemy: closestKillableEnemy,
-  closestEnemyHead: closestEnemyHead
+  closestEnemyHead: closestEnemyHead,
+  closestTarget: closestTarget
 };
