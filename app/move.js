@@ -127,6 +127,7 @@ const buildMove = (grid, data, move = k.RIGHT, moveScore = 0) => {
   // get base next move scores
   try { 
     scores = baseMoveScores(grid, self);
+    if (p.STATUS) log.status(`Adding ASTAR_SUCCESS ${p.ASTAR_SUCCESS} to move ${k.DIRECTION[move]}`);
     scores[move] += moveScore;
    }
   catch (e) { log.error(`ex in move.buildMove.baseMoveScores: ${e}`, data.turn); }
