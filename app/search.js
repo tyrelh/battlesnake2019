@@ -6,6 +6,10 @@ const p = require("./params");
 const m = require("./move");
 const log = require("./logger");
 
+const wallNearFillMultiplier = 0.3;
+
+
+
 
 // fill an area
 const fill = (direction, grid, data, constraints = []) => {
@@ -127,22 +131,25 @@ const fill = (direction, grid, data, constraints = []) => {
   score += enemyHeads * p.BASE_ENEMY_HEAD;
   score += killZones * p.BASE_KILL_ZONE;
   score += warnings * p.BASE_WARNING;
-  score += walls * (p.BASE_WALL_NEAR * 0.4);
+  score += walls * (p.BASE_WALL_NEAR * p.WALL_NEAR_FILL_MULTIPLIER);
   if (p.DEBUG) log.debug(`Score in fill: ${score} for move ${k.DIRECTION[direction]}. Area: ${area}`);
   return score;
 }
 
 
+
+
 // a* pathfinding algorithm that will find the shortest path from current head
 // location to a given destination
-const astar = (grid, data, destination, mode = k.FOOD) => {
+const astar = (grid, data, destination, mode = k.FOOD, begin = null) => {
   if (p.STATUS) log.status("Calculating path (astar)...");
   // init search fields
   const searchScores = buildAstarGrid(grid);
   let openSet = [];
   let closedSet = [];
   // start location for search is current head location
-  const start = s.location(data);
+
+  const start = (begin === null) ? s.location(data) : begin;
   // on first few moves, point to closest food no matter what
   if (data.turn < p.INITIAL_FEEDING) {
     destination = t.closestFood(grid, start);
@@ -260,14 +267,51 @@ const astar = (grid, data, destination, mode = k.FOOD) => {
 };
 
 
-const distanceToEnemy = (direction, grid, data) => {
+
+
+// TODO: this is broken?
+const enemySearchForFood = (grid, data) => {
+  const you = data.you;
+
+  try {
+    data.board.snakes.forEach(({ id, name, health, body }) => {
+      if (id === you.id) return;
+
+      const head = body[0];
+      let gridCopy = g.copyGrid(grid);
+      let target = t.closestFood(grid, head);
+      let move = astar(grid, data, target, k.FOOD, body[0]);
+      while (move === null) {
+        if (target === null) {
+          target = t.closestTarget(grid, head, k.TAIL);
+          move = astar(gridCopy, data, target, k.TAIL, body[0]);
+          break; 
+        }
+        gridCopy[target.y][target.x] = k.WARNING;
+        target = t.closestFood(grid, head);
+        move = astar(gridCopy, data, target, k.FOOD, body[0]);
+
+      }
+
+      if (move != null) {
+        grid[move.y][move.x] = k.DANGER;
+      }
+
+    });
+  }
+  catch (e) { log.error(`ex in search.enemySearchForFood: ${e}`, data.turn); }
+  return grid;
+}
+
+
+const distanceToEnemy = (direction, grid, data, type = k.ENEMY_HEAD) => {
   try {
     const you = data.you;
-    // console.log(k);
     if (validMove(direction, you.body[0], grid)) {
-      const closestEnemyHead = t.closestEnemyHead(grid, you);
+      const closestEnemyHead = t.closestTarget(grid, you.body[0], type);
+      // if (p.DEBUG && closestEnemyHead != null) log.debug(`Closest enemy for move ${k.DIRECTION[direction]} is ${pairToString(closestEnemyHead)}`);
       if (closestEnemyHead === null) return 0;
-      return g.getDistance(closestEnemyHead, you.body[0]);
+      return g.getDistance(closestEnemyHead, applyMoveToPos(direction, you.body[0]));
     }
   }
   catch (e) { log.error(`ex in search.distanceToEnemy: ${e}`, data.turn); }
@@ -374,7 +418,7 @@ const validMove = (direction, pos, grid) => {
   try {
     const newPos = applyMoveToPos(direction, pos);
     if (outOfBounds(newPos, grid)) return false;
-    return grid[newPos.y][newPos.x] <- k.DANGER;
+    return grid[newPos.y][newPos.x] <= k.DANGER;
   }
   catch (e) {
     log.error(`ex in search.validMove: ${e}\n{direction: ${direction}, pos: ${pairToString(pos)}, grid: ${grid}}`);
@@ -402,5 +446,6 @@ module.exports = {
   outOfBounds: outOfBounds,
   astar: astar,
   fill: fill,
-  distanceToEnemy: distanceToEnemy
+  distanceToEnemy: distanceToEnemy,
+  enemySearchForFood: enemySearchForFood
 }
