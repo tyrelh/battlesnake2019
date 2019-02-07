@@ -7,8 +7,6 @@ const search = require("./search")
 const log = require("./logger");
 
 let previousMove = 0;
-const wallNearBaseMoveMultiplier = 1.6;
-
 
 
 // target closest reachable food
@@ -248,7 +246,7 @@ const baseScoreForBoardPosition = (x, y, grid) => {
       case k.KILL_ZONE:
         return p.BASE_KILL_ZONE;
       case k.WALL_NEAR:
-        return p.BASE_WALL_NEAR * wallNearBaseMoveMultiplier;
+        return p.BASE_WALL_NEAR * p.WALL_NEAR_BASE_MOVE_MULTIPLIER;
       case k.WARNING:
         return p.BASE_WARNING;
       case k.DANGER:
