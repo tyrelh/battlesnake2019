@@ -14,7 +14,7 @@ const eat = (grid, data) => {
   if (p.STATUS) log.status("EATING");
   const self = data.you;
   const health = self.health;
-  const urgency = 1 - (health / 100);
+  const urgency = 1.1 - (health / 100);
   let target = null;
   let move = null;
   const gridCopy = g.copyGrid(grid);
@@ -56,30 +56,52 @@ const eat = (grid, data) => {
 
 // track closest KILL_ZONE
 const hunt = (grid, data) => {
-  if (p.STATUS) log.status("HUNTING");
-  const self = data.you;
-  let target = null;
+  const you = data.you;
+  let score = 0;
   let move = null;
-  let gridCopy = g.copyGrid(grid);
+  if (p.STATUS) log.status("HUNTING");
+
   try {
-    target = t.closestKillableEnemy(grid, self.body[0]);
-    move = search.astar(grid, data, target, k.KILL_ZONE);
-    while (move === null) {
-      gridCopy[target.y][target.x] = k.SPACE;
-      target = t.closestKillableEnemy(gridCopy, self.body[0]);
-      if (target === null) {
-        move = suggestMove(k.RIGHT, self.body[0], grid);
-        break;
+    move = search.closeAccessableKillZoneFarFromWall(grid, data);
+
+    // TODO: build a redundancy method that will do this
+    if (move != null) {
+      score = p.ASTAR_SUCCESS;
+    } else {
+      if (p.STATUS) log.status(`No accessable KILL_ZONE was found. Trying to target tail.`);
+      move = search.astar(grid, data, you.body[you.body.length - 1], k.TAIL);
+      if (move != null) {
+        score = p.ASTAR_SUCCESS * 0.3;
+      } else {
+        score = 0;
       }
-      move = search.astar(grid, data, target, k.KILL_ZONE);
     }
   }
   catch (e) { log.error(`ex in move.hunt: ${e}`, data.turn); }
-  if (p.DEBUG && target != null) {
-    log.debug(`target in move.hunt: ${pairToString(target)}`);
-    log.debug(`Score for a* move: ${k.DIRECTION[move]}: ${p.ASTAR_SUCCESS}`);
-  }
-  return buildMove(grid, data, move, p.ASTAR_SUCCESS)
+  // const self = data.you;
+  // let target = null;
+  // let move = null;
+  // let gridCopy = g.copyGrid(grid);
+  // try {
+  //   target = t.closestKillableEnemy(grid, self.body[0]);
+  //   move = search.astar(grid, data, target, k.KILL_ZONE);
+  //   while (move === null) {
+  //     gridCopy[target.y][target.x] = k.SPACE;
+  //     target = t.closestKillableEnemy(gridCopy, self.body[0]);
+  //     if (target === null) {
+  //       move = suggestMove(k.RIGHT, self.body[0], grid);
+  //       break;
+  //     }
+  //     move = search.astar(grid, data, target, k.KILL_ZONE);
+  //   }
+  // }
+  // catch (e) { log.error(`ex in move.hunt: ${e}`, data.turn); }
+  // if (p.DEBUG && target != null) {
+  //   log.debug(`target in move.hunt: ${pairToString(target)}`);
+  //   log.debug(`Score for a* move: ${k.DIRECTION[move]}: ${p.ASTAR_SUCCESS}`);
+  // }
+  if (p.DEBUG) log.debug(`In hunt calulated score ${score} for move ${k.DIRECTION[move]}`);
+  return buildMove(grid, data, move, score)
 };
 
 
@@ -127,8 +149,9 @@ const buildMove = (grid, data, move = k.RIGHT, moveScore = 0) => {
   // get base next move scores
   try { 
     scores = baseMoveScores(grid, self);
-    if (p.STATUS) log.status(`Adding ASTAR_SUCCESS ${p.ASTAR_SUCCESS} to move ${k.DIRECTION[move]}`);
+    if (p.STATUS) log.status(`Adding moveScore ${moveScore} to move ${k.DIRECTION[move]}`);
     scores[move] += moveScore;
+    if (p.STATUS) log.status(`Move scores: ${scoresToString(scores)}`);
    }
   catch (e) { log.error(`ex in move.buildMove.baseMoveScores: ${e}`, data.turn); }
   
@@ -140,6 +163,7 @@ const buildMove = (grid, data, move = k.RIGHT, moveScore = 0) => {
     }
   }
   catch (e) { log.error(`ex in move.buildMove.fill: ${e}`, data.turn); }
+  if (p.STATUS) log.status(`Move scores: ${scoresToString(scores)}`);
 
   // see if a particular move will bring you farther from dangerous snake
   try {
@@ -166,6 +190,7 @@ const buildMove = (grid, data, move = k.RIGHT, moveScore = 0) => {
     }
   }
   catch (e) { log.error(`ex in move.buildMove.closestEnemyHead: ${e}`, data.turn); }
+  if (p.STATUS) log.status(`Move scores: ${scoresToString(scores)}`);
 
   // see if a particular move will bring you closer to a killable snake
   try {

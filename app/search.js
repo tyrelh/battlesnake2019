@@ -141,7 +141,7 @@ const fill = (direction, grid, data, constraints = []) => {
 
 // a* pathfinding algorithm that will find the shortest path from current head
 // location to a given destination
-const astar = (grid, data, destination, mode = k.FOOD, begin = null) => {
+const astar = (grid, data, destination, searchType = k.FOOD, alternateStartPos = null) => {
   if (p.STATUS) log.status("Calculating path (astar)...");
   // init search fields
   const searchScores = buildAstarGrid(grid);
@@ -149,18 +149,18 @@ const astar = (grid, data, destination, mode = k.FOOD, begin = null) => {
   let closedSet = [];
   // start location for search is current head location
 
-  const start = (begin === null) ? s.location(data) : begin;
+  const start = (alternateStartPos === null) ? s.location(data) : alternateStartPos;
   // on first few moves, point to closest food no matter what
   if (data.turn < p.INITIAL_FEEDING) {
     destination = t.closestFood(grid, start);
-    mode = k.FOOD;
+    searchType = k.FOOD;
   }
   if (destination == null) {
     log.debug("In search.astar, destination was null, trying to target tail.");
     destination = s.tailLocation(data);
-    mode = k.TAIL;
+    searchType = k.TAIL;
   }
-  if (p.DEBUG) log.debug(`astar destination: ${k.TYPE[mode]}, ${pairToString(destination)}`);
+  if (p.DEBUG) log.debug(`astar destination: ${k.TYPE[searchType]}, ${pairToString(destination)}`);
   openSet.push(start);
   // while the open set is not empty keep searching
   while (openSet.length) {
@@ -265,6 +265,101 @@ const astar = (grid, data, destination, mode = k.FOOD, begin = null) => {
     return null;
   }
 };
+
+
+
+const closeAccessableKillZoneFarFromWall = (grid, data) => {
+  try {
+    const you = data.you;
+    let target = null;
+    let move = null;
+    let foundMove = false;
+    let gridCopy = g.copyGrid(grid);
+    while (!foundMove) {
+      target = t.closestTarget(gridCopy, you.body[0], k.SMALL_HEAD);
+      if (target === null) {
+        return null;
+      }
+      let killZones = getKillZonesInOrderOfDistanceFromWall(grid, target);
+      console.log(`KILLZONES: ${killZones}`);
+      if (killZones != null) {
+        for (let killZone of killZones) {
+          move = astar(grid, data, killZone, k.SMALL_HEAD)
+          if (move != null) {
+            return move;
+          }
+        }
+      }
+      gridCopy[target.y][target.x] = k.ENEMY_HEAD;
+    }
+  }
+  catch (e) { log.error(`ex in search.closeAccessableKillZoneFarFromWall: ${e}`, data.turn); }
+  return null;
+}
+
+
+
+const getKillZonesInOrderOfDistanceFromWall = (grid, target) => {
+  try {
+    let spots = [];
+    let spot = {};
+    let distance = 0;
+    // check up
+    spot = { x: target.x, y: target.y - 1 };
+    if (!outOfBounds(spot, grid) && validMove(k.UP, target, grid)) {
+      distance = distanceFromWall(spot, grid);
+      spots.push({ pos: spot, distance: distance });
+    }
+    // check down
+    spot = { x: target.x, y: target.y + 1 };
+    if (!outOfBounds(spot, grid) && validMove(k.DOWN, target, grid)) {
+      distance = distanceFromWall(spot, grid);
+      spots.push({ pos: spot, distance: distance });
+    }
+    // check left
+    spot = { x: target.x - 1, y: target.y };
+    if (!outOfBounds(spot, grid) && validMove(k.LEFT, target, grid)) {
+      distance = distanceFromWall(spot, grid);
+      spots.push({ pos: spot, distance: distance });
+    }
+    // check right
+    spot = { x: target.x + 1, y: target.y };
+    if (!outOfBounds(spot, grid) && validMove(k.RIGHT, target, grid)) {
+      distance = distanceFromWall(spot, grid);
+      spots.push({ pos: spot, distance: distance });
+    }
+
+    spots.sort(
+      (a, b) => (a.distance < b.distance) ? 1 : ((b.distance < a.distance) ? -1 : 0)
+    );
+
+    let killZones = []
+    for (let spot of spots) {
+      killZones.push(spot.pos);
+    }
+    if (killZones.length < 1) return null;
+    return killZones;
+  }
+  catch (e) { log.error(`ex in search.getKillZonesInOrderOfDistanceFromWall: ${e}`); }
+  return null;
+}
+
+
+
+// calculate the distance a position is from walls
+const distanceFromWall = (pos, grid) => {
+  try {
+    let yUp = pos.y;
+    let yDown = (grid.length - 1) - pos.y;
+    let xLeft = pos.x;
+    let xRight = (grid[0].length - 1) - pos.x;
+    let xDistance = Math.min(xLeft, xRight);
+    let yDistance = Math.min(yUp, yDown);
+    return xDistance + yDistance
+  }
+  catch (e) { log.error(`ex in search.distanceFromWall: ${e}`) };
+  return 0;
+}
 
 
 
@@ -447,5 +542,6 @@ module.exports = {
   astar: astar,
   fill: fill,
   distanceToEnemy: distanceToEnemy,
-  enemySearchForFood: enemySearchForFood
+  enemySearchForFood: enemySearchForFood,
+  closeAccessableKillZoneFarFromWall: closeAccessableKillZoneFarFromWall
 }
