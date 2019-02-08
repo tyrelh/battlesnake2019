@@ -22,6 +22,8 @@ You can also deploy this repo directly to Heroku by clicking this link. You will
 * [My 2018 Python Entry](https://github.com/tyrelh/battlesnake2018)
 
 ## Changelog
+* **v2.3.4:**
+  * Rework hunting algorithm to favor side of smaller snake farther from the wall.
 * **v2.3.3:**
   * Grid copy functionality to fix bug in secondary target searches.
   * Add target search redundancy to killTime for when tail is inaccessable.
