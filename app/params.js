@@ -9,7 +9,7 @@ module.exports = {
   INITIAL_FEEDING: 5,
   SURVIVAL_MIN: 35,      // started @ 50   --+
   INITIAL_TIME_KILL: 60, // started @ 70   -
-  WALL_NEAR_BASE_MOVE_MULTIPLIER: 4.2, // started @ 1.6 +++
+  WALL_NEAR_BASE_MOVE_MULTIPLIER: 4.5, // started @ 1.6 ++++
   WALL_NEAR_FILL_MULTIPLIER: 0.3, // started @ 0.4 -
   // scores for moves
   ASTAR_SUCCESS: 9.2,    // started @ 10   -++
