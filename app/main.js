@@ -36,24 +36,24 @@ const move = (req, res) => {
     catch (e) { log.error(`ex in main.survivalMin: ${e}`, turn); }
   }
   // start early game by killing some time, to let dumb snakes die
-  else if (turn < p.INITIAL_TIME_KILL) {
+  else {
     try { move = m.killTime(grid, data); }
     catch (e) { log.error(`ex in main.initialKillTime: ${e}`, turn)}
   }
-  else if (!s.biggestSnake(data)) {
-    try { move = m.eat(grid, data); }
-    catch (e) { log.error(`ex in main.notBiggest: ${e}`, turn); }
-  }
-  // if you are the biggest you can go on the hunt
-  else if (s.biggestSnake(data)) {
-    try { move = m.hunt(grid, data); }
-    catch (e) { log.error(`ex in main.biggest: ${e}`, turn)}
-  }
-  // backup plan?
-  if (move === null) {
-    try { move = m.eat(grid, data); }
-    catch (e) { log.error(`ex in main.backupPlan: ${e}`, turn); }
-  }
+  // else if (!s.biggestSnake(data)) {
+  //   try { move = m.eat(grid, data); }
+  //   catch (e) { log.error(`ex in main.notBiggest: ${e}`, turn); }
+  // }
+  // // if you are the biggest you can go on the hunt
+  // else if (s.biggestSnake(data)) {
+  //   try { move = m.hunt(grid, data); }
+  //   catch (e) { log.error(`ex in main.biggest: ${e}`, turn)}
+  // }
+  // // backup plan?
+  // if (move === null) {
+  //   try { move = m.eat(grid, data); }
+  //   catch (e) { log.error(`ex in main.backupPlan: ${e}`, turn); }
+  // }
   
   if (p.STATUS) {
     let date2 = new Date();
