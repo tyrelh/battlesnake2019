@@ -14,7 +14,7 @@ module.exports = {
   // scores for moves
   ASTAR_SUCCESS: 9.2,    // started @ 10   -++
   SUGGEST_MOVE: 0.2,
-  ENEMY_DISTANCE: 0.99,
+  ENEMY_DISTANCE: 1.5,   // started @ 0.99 +
   BASE_KILL_ZONE: 2.1,
   BASE_FOOD: 0.9,
   BASE_TAIL: 7.9,        // started @  0.4 +
