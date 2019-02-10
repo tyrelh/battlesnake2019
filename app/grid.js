@@ -1,4 +1,4 @@
-const k = require("./keys");
+const keys = require("./keys");
 const log = require("./logger");
 const p = require("./params");
 
@@ -8,34 +8,25 @@ const buildGrid = data => {
   const self = data.you;
 
   // initailize grid to SPACEs
-  let grid = initGrid(board.width, board.height, k.SPACE);
+  let grid = initGrid(board.width, board.height, keys.SPACE);
 
   try {
     // mark edges WALL_NEAR
     for (let y = 0; y < board.height; y++) {
-      grid[y][0] = k.WALL_NEAR;
-      grid[y][board.width - 1] = k.WALL_NEAR;
+      grid[y][0] = keys.WALL_NEAR;
+      grid[y][board.width - 1] = keys.WALL_NEAR;
     }
     for (let x = 0; x < board.width; x++) {
-      grid[0][x] = k.WALL_NEAR;
-      grid[board.height - 1][x] = k.WALL_NEAR;
+      grid[0][x] = keys.WALL_NEAR;
+      grid[board.height - 1][x] = keys.WALL_NEAR;
     }
   }
   catch (e) { log.error(`ex in edges marking grid.buildGrid: ${e}`, data.turn); }
 
-  // try {
-  //   // mark corners DANGER
-  //   grid[0][0] = k.DANGER;
-  //   grid[0][board.width - 1] = k.DANGER;
-  //   grid[board.height - 1][0] = k.DANGER;
-  //   grid[board.height - 1][board.width - 1] = k.DANGER;
-  // }
-  // catch (e) { log.error(`ex in corners marking grid.buildGrid: ${e}`, data.turn); }
-
   // fill FOOD locations
   try {
     board.food.forEach(({ x, y }) => {
-      grid[y][x] = k.FOOD;
+      grid[y][x] = keys.FOOD;
     });
   }
   catch (e) { log.error(`ex in food marking grid.buildGrid: ${e}`, data.turn); }
@@ -45,22 +36,19 @@ const buildGrid = data => {
     board.snakes.forEach(({ id, name, health, body }) => {
       // fill SNAKE_BODY locations
       body.forEach(({ x, y }) => {
-        if (id === self.id) grid[y][x] = k.YOUR_BODY;
-        else grid[y][x] = k.SNAKE_BODY;
+        if (id === self.id) grid[y][x] = keys.YOUR_BODY;
+        else grid[y][x] = keys.SNAKE_BODY;
       });
-
-      // // skip filling own head and DANGER
-      // if (id === self.id) return;
 
       // fill ENEMY_HEAD and DANGER locations
       const head = body[0];
       const dangerSnake = body.length >= self.body.length
       if (id != self.id) {
         if (dangerSnake) {
-          grid[head.y][head.x] = k.ENEMY_HEAD;
+          grid[head.y][head.x] = keys.ENEMY_HEAD;
         }
         else {
-          grid[head.y][head.x] = k.SMALL_HEAD;
+          grid[head.y][head.x] = keys.SMALL_HEAD;
         }
         
       }
@@ -68,32 +56,28 @@ const buildGrid = data => {
       // mark DANGER or KILL_ZONE around enemy head based on snake length
       // also check if tail can be TAIL or SNAKE_BODY
       let tailSpace = true;
-      let headZone = body.length < self.body.length ? k.KILL_ZONE : k.DANGER;
+      let headZone = body.length < self.body.length ? keys.KILL_ZONE : keys.DANGER;
       // TODO: these checks can be simplified?
       // check down
-      if (head.y + 1 < board.height && grid[head.y + 1][head.x] < k.DANGER) {
-        if (grid[head.y + 1][head.x] === k.FOOD) tailSpace = false;
-        // if (id != self.id) grid[head.y + 1][head.x] = headZone;
+      if (head.y + 1 < board.height && grid[head.y + 1][head.x] < keys.DANGER) {
+        if (grid[head.y + 1][head.x] === keys.FOOD) tailSpace = false;
       }
       // check up
-      if (head.y - 1 >= 0 && grid[head.y - 1][head.x] < k.DANGER) {
-        if (grid[head.y - 1][head.x] === k.FOOD) tailSpace = false;
-        // if (id != self.id) grid[head.y - 1][head.x] = headZone;
+      if (head.y - 1 >= 0 && grid[head.y - 1][head.x] < keys.DANGER) {
+        if (grid[head.y - 1][head.x] === keys.FOOD) tailSpace = false;
       }
       // check left
-      if (head.x + 1 < board.width && grid[head.y][head.x + 1] < k.DANGER) {
-        if (grid[head.y][head.x + 1] === k.FOOD) tailSpace = false;
-        // if (id != self.id) grid[head.y][head.x + 1] = headZone;
+      if (head.x + 1 < board.width && grid[head.y][head.x + 1] < keys.DANGER) {
+        if (grid[head.y][head.x + 1] === keys.FOOD) tailSpace = false;
       }
       // check right
-      if (head.x - 1 >= 0 && grid[head.y][head.x - 1] < k.DANGER) {
-        if (grid[head.y][head.x - 1] === k.FOOD) tailSpace = false;
-        // if (id != self.id) grid[head.y][head.x - 1] = headZone;
+      if (head.x - 1 >= 0 && grid[head.y][head.x - 1] < keys.DANGER) {
+        if (grid[head.y][head.x - 1] === keys.FOOD) tailSpace = false;
       }
       // check for tail
       if (tailSpace && data.turn > 3) {
         let tail = body[body.length - 1]
-        grid[tail.y][tail.x] = k.TAIL;
+        grid[tail.y][tail.x] = keys.TAIL;
       }
     });
 
@@ -101,21 +85,21 @@ const buildGrid = data => {
     board.snakes.forEach(({ id, name, health, body }) => {
       if (id == self.id) return;
       const head = body[0];
-      let headZone = body.length < self.body.length ? k.KILL_ZONE : k.DANGER;
+      let headZone = body.length < self.body.length ? keys.KILL_ZONE : keys.DANGER;
       // check up
-      if (head.y + 1 < board.height && grid[head.y + 1][head.x] < k.DANGER) {
+      if (head.y + 1 < board.height && grid[head.y + 1][head.x] < keys.DANGER) {
         grid[head.y + 1][head.x] = headZone;
       }
       // check down
-      if (head.y - 1 >= 0 && grid[head.y - 1][head.x] < k.DANGER) {
+      if (head.y - 1 >= 0 && grid[head.y - 1][head.x] < keys.DANGER) {
         grid[head.y - 1][head.x] = headZone;
       }
       // check left
-      if (head.x - 1 >= 0 && grid[head.y][head.x - 1] < k.DANGER) {
+      if (head.x - 1 >= 0 && grid[head.y][head.x - 1] < keys.DANGER) {
         grid[head.y][head.x - 1] = headZone;
       }
       // check right
-      if (head.x + 1 < board.width && grid[head.y][head.x + 1] < k.DANGER) {
+      if (head.x + 1 < board.width && grid[head.y][head.x + 1] < keys.DANGER) {
         grid[head.y][head.x + 1] = headZone;
       }
     });
@@ -141,7 +125,7 @@ const printGrid = grid => {
   for (let i = 0; i < grid.length; i++) {
     let row = `${i % 10} `;
     for (let j = 0; j < grid[0].length; j++) {
-      row += ` ${k.MAP[grid[i][j]]}`;
+      row += ` ${keys.MAP[grid[i][j]]}`;
     }
     log.status(row);
   }
