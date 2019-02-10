@@ -11,10 +11,10 @@ let previousMove = 0;
 
 // target closest reachable food
 const eat = (grid, data) => {
-  if (p.STATUS) log.status("EATING");
   const self = data.you;
   const health = self.health;
   const urgency = 1.1 - (health / 100);
+  if (p.STATUS) log.status(`EATING w/ urgency ${urgency}`);
   let target = null;
   let move = null;
   const gridCopy = g.copyGrid(grid);
@@ -63,44 +63,17 @@ const hunt = (grid, data) => {
 
   try {
     move = search.closeAccessableKillZoneFarFromWall(grid, data);
-
-    // TODO: build a redundancy method that will do this
     if (move != null) {
       score = p.ASTAR_SUCCESS;
     } else {
-      if (p.STATUS) log.status(`No accessable KILL_ZONE was found. Trying to target tail.`);
-      move = search.astar(grid, data, you.body[you.body.length - 1], k.TAIL);
-      if (move != null) {
-        score = p.ASTAR_SUCCESS * 0.3;
-      } else {
-        score = 0;
-      }
+      const fallbackMove = getFallbackMove(grid, data);
+      move = fallbackMove.move;
+      score = fallbackMove.score;
     }
   }
   catch (e) { log.error(`ex in move.hunt: ${e}`, data.turn); }
-  // const self = data.you;
-  // let target = null;
-  // let move = null;
-  // let gridCopy = g.copyGrid(grid);
-  // try {
-  //   target = t.closestKillableEnemy(grid, self.body[0]);
-  //   move = search.astar(grid, data, target, k.KILL_ZONE);
-  //   while (move === null) {
-  //     gridCopy[target.y][target.x] = k.SPACE;
-  //     target = t.closestKillableEnemy(gridCopy, self.body[0]);
-  //     if (target === null) {
-  //       move = suggestMove(k.RIGHT, self.body[0], grid);
-  //       break;
-  //     }
-  //     move = search.astar(grid, data, target, k.KILL_ZONE);
-  //   }
-  // }
-  // catch (e) { log.error(`ex in move.hunt: ${e}`, data.turn); }
-  // if (p.DEBUG && target != null) {
-  //   log.debug(`target in move.hunt: ${pairToString(target)}`);
-  //   log.debug(`Score for a* move: ${k.DIRECTION[move]}: ${p.ASTAR_SUCCESS}`);
-  // }
-  if (p.DEBUG) log.debug(`In hunt calulated score ${score} for move ${k.DIRECTION[move]}`);
+
+  if (p.DEBUG && move != null) log.debug(`In hunt calulated score ${score} for move ${k.DIRECTION[move]}`);
   return buildMove(grid, data, move, score)
 };
 
@@ -109,34 +82,47 @@ const hunt = (grid, data) => {
 // track own tail
 const killTime = (grid, data) => {
   if (p.STATUS) log.status("KILLING TIME");
-  let move = null;
-  const self = data.you;
-  const len = self.body.length
-  const tail = self.body[len - 1]
-  let gridCopy = g.copyGrid(grid);
 
-  try { move = search.astar(grid, data, tail, k.TAIL); }
-  catch (e) { log.error(`ex in move.killTime.tail: ${e}`, data.turn); }
-
-  if (move === null ) {
-    try {
-      let target = t.closestFood(grid, self.body[0]);
-      move = search.astar(grid, data, target, k.FOOD);
-      while (move === null) {
-        gridCopy[target.y][target.x] = k.SPACE;
-        target = t.closestFood(gridCopy, self.body[0]);
-        if (target === null) {
-          move = suggestMove(k.RIGHT, self.body[0], grid);
-          break;
-        }
-        move = search.astar(grid, data, target, k.FOOD);
-      }
-    }
-    catch (e) { log.error(`ex in move.killTime.backupFoodSearch: ${e}`, data.turn); }
-  }
+  const fallbackMove = getFallbackMove(grid, data);
+  let move = fallbackMove.move;
+  let score = fallbackMove.score;
 
   if (p.DEBUG && move != null) log.debug(`Score for a* move: ${k.DIRECTION[move]}: ${p.ASTAR_SUCCESS}`);
   return buildMove(grid, data, move, p.ASTAR_SUCCESS);
+}
+
+
+
+const getFallbackMove = (grid, data) => {
+  try {
+    if (p.STATUS) log.status("Resorting to fallback move");
+    // try finding a path to tail first
+    let target = s.tailLocation(data);
+    let move = search.astar(grid, data, target, k.TAIL);
+    let score = 0;
+    // if no path to own tail, try searching for food
+    const gridCopy = g.copyGrid(grid);
+    while (move === null) {
+      target = t.closestFood(gridCopy, s.location(data));
+      if (target != null) {
+        gridCopy[target.y][target.x] = k.WARNING;
+        move = search.astar(grid, data, target, k.FOOD);
+      }
+      // if no more food to search for just quit
+      else break;
+    }
+    if (move != null) {
+      score = p.ASTAR_SUCCESS / 5;
+      if (p.DEBUG) {
+        log.debug(`getFallbackMove target: ${pairToString(target)}`);
+        log.debug(`getFallbackMove move: ${k.DIRECTION[move]}`);
+        log.debug(`getFallbackMove score: ${score}`);
+      }
+      return { move: move, score: score };
+    }
+  }
+  catch (e) { log.error(`ex in move.getFallbackMove: ${e}`, data.turn); }
+  return { move: suggestMove(k.RIGHT, s.location(data), grid), score: 0 };
 }
 
 
