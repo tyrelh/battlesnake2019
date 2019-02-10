@@ -1,10 +1,10 @@
 const SURVIVAL_MIN = 30 // started @ 50   --
 module.exports = {
   // logging
-  DEBUG: true,
-  STATUS: true,
-  DEBUG_MAPS: true,
-  CONSOLE_LOG: true,
+  DEBUG: false,
+  STATUS: false,
+  DEBUG_MAPS: false,
+  CONSOLE_LOG: false,
   // basic game params
   INITIAL_FEEDING: 5,
   SURVIVAL_MIN: 35,      // started @ 50   --+
