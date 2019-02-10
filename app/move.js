@@ -247,7 +247,7 @@ const baseMoveScores = (grid, self) => {
 const baseScoreForBoardPosition = (x, y, grid) => {
   try {
     // if out of bounds
-    if (search.outOfBounds({ x: x, y: y }, grid)) return p.BASE_BAD;
+    if (search.outOfBounds({ x: x, y: y }, grid)) return p.FORGET_ABOUT_IT;
     // types of spaces
     switch (grid[y][x]) {
       case k.SPACE:
