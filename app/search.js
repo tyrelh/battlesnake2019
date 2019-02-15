@@ -31,7 +31,8 @@ const fill = (direction, grid, data, constraints = []) => {
       if (!outOfBounds(pos, grid) && !inGrid(pos, closedGrid) && !inGrid(pos, openGrid)) {
         if (inGrid(pos, grid) <= k.DANGER) {
           for (let i = 0; i < constraints.length; i++) {
-            if (area === 0 && inGrid(pos, grid) === k.KILL_ZONE) break; // if very first cell you test is a killzone, thats fine, dont return
+            // if very first cell you test is a killzone or future move, thats fine, dont return
+            if (area < 2 && (inGrid(pos, grid) === k.KILL_ZONE || inGrid(pos, grid) === k.FUTURE_2)) break;
             if (inGrid(pos, grid) === constraints[i]) return;
           }
           openStack.push(pos);

@@ -9,23 +9,26 @@ const log = require("./logger");
 let previousMove = 0;
 
 
+
+
 // target closest reachable food
 const eat = (grid, data) => {
-  const self = data.you;
-  const health = self.health;
-  const urgency = 1.1 - (health / 100);
-  if (p.STATUS) log.status(`EATING w/ urgency ${urgency}`);
+  const you = data.you;
+  const myHead = s.location(data);
+  const health = you.health;
+  const urgencyScore = 101 - health;
+  if (p.STATUS) log.status(`EATING w/ urgency ${urgencyScore}`);
   let target = null;
   let move = null;
   const gridCopy = g.copyGrid(grid);
   try {
-    target = t.closestFood(grid, self.body[0]);
+    target = t.closestFood(grid, myHead);
     move = search.astar(grid, data, target, k.FOOD);
     while (move === null) {
       gridCopy[target.y][target.x] = k.SPACE;
-      target = t.closestFood(gridCopy, self.body[0]);
+      target = t.closestFood(gridCopy, myHead);
       if (target === null) {
-        move = suggestMove(k.RIGHT, self.body[0], grid);
+        move = suggestMove(k.RIGHT, myHead, grid);
         break;
       }
       move = search.astar(grid, data, target, k.FOOD);
@@ -34,13 +37,13 @@ const eat = (grid, data) => {
   catch (e) { log.error(`ex in move.eat: ${e}`, data.turn); }
 
   try {
-    if (target && move) {
-      const searchScore = p.ASTAR_SUCCESS * urgency;
+    if (move != null) {
+      // const searchScore = p.ASTAR_SUCCESS * urgency;
       if (p.DEBUG) {
-        log.debug(`target in eat: ${pairToString(target)}`);
-        log.debug(`Score for a* move: ${k.DIRECTION[move]}: ${searchScore}`);
+        if (target != null) log.debug(`target in eat: ${pairToString(target)}`);
+        log.debug(`Score for a* move: ${k.DIRECTION[move]}: ${urgencyScore}`);
       }
-      return buildMove(grid, data, move, searchScore);
+      return buildMove(grid, data, move, urgencyScore);
     }
     else {
       return buildMove(grid, data, 0, 0);
@@ -52,6 +55,7 @@ const eat = (grid, data) => {
   }
 };
 
+ 
 
 
 // track closest KILL_ZONE
@@ -79,6 +83,7 @@ const hunt = (grid, data) => {
 
 
 
+
 // track own tail
 const killTime = (grid, data) => {
   if (p.STATUS) log.status("KILLING TIME");
@@ -90,6 +95,7 @@ const killTime = (grid, data) => {
   if (p.DEBUG && move != null) log.debug(`Score for a* move: ${k.DIRECTION[move]}: ${p.ASTAR_SUCCESS}`);
   return buildMove(grid, data, move, score);
 }
+
 
 
 
@@ -127,6 +133,7 @@ const getFallbackMove = (grid, data) => {
 
 
 
+
 // build up move scores and return best move
 const buildMove = (grid, data, move = k.RIGHT, moveScore = 0) => {
   const self = data.you;
@@ -146,6 +153,7 @@ const buildMove = (grid, data, move = k.RIGHT, moveScore = 0) => {
     for (let m = 0; m < 4; m++) {
       scores[m] += search.fill(m, grid, data);
       scores[m] += search.fill(m, grid, data, [k.KILL_ZONE, k.DANGER, k.WARNING]);
+      scores[m] += search.fill(m, grid, data, [k.KILL_ZONE, k.DANGER, k.WARNING, k.FUTURE_2]);
     }
   }
   catch (e) { log.error(`ex in move.buildMove.fill: ${e}`, data.turn); }
@@ -199,6 +207,7 @@ const buildMove = (grid, data, move = k.RIGHT, moveScore = 0) => {
       }
     }
     if (uniqueSmallestDistanceMove){
+      let move = 
       log.debug(`Add ENEMY_DISTANCE ${p.ENEMY_DISTANCE} to move ${k.DIRECTION[smallestDistanceMove]} for closer KILL_ZONE`);
       scores[smallestDistanceMove] += p.ENEMY_DISTANCE;
     }
@@ -210,6 +219,7 @@ const buildMove = (grid, data, move = k.RIGHT, moveScore = 0) => {
   previousMove = bestMove;
   return bestMove
 }
+
 
 
 
@@ -228,6 +238,7 @@ const highestScoreMove = scores => {
 
 
 
+
 // get base score for each possible move
 const baseMoveScores = (grid, self) => {
   const head = self.body[0];
@@ -243,6 +254,7 @@ const baseMoveScores = (grid, self) => {
 
 
 
+
 // return a base score depending on what is currently in that position on the board
 const baseScoreForBoardPosition = (x, y, grid) => {
   try {
@@ -252,6 +264,7 @@ const baseScoreForBoardPosition = (x, y, grid) => {
     switch (grid[y][x]) {
       case k.SPACE:
       case k.TAIL:
+      case k.FUTURE_2:
         return p.BASE_SPACE;
       case k.FOOD:
         return p.BASE_FOOD;
@@ -273,6 +286,7 @@ const baseScoreForBoardPosition = (x, y, grid) => {
 
 
 
+
 // check if move is not fatal
 const validMove = (direction, pos, grid) => {
   try {
@@ -291,6 +305,7 @@ const validMove = (direction, pos, grid) => {
   }
   catch (e) { log.error(`ex in move.validMove: ${e}`); }
 };
+
 
 
 
@@ -330,11 +345,13 @@ const suggestMove = (direction, pos, grid) => {
 
 
 
+
 // return pair as string
 const pairToString = pair => {
   try { return `{x: ${pair.x}, y: ${pair.y}}`; }
   catch (e) { log.error(`ex in move.pairToString: ${e}`); }
 };
+
 
 
 
@@ -345,8 +362,6 @@ const scoresToString = scores => {
   }
   catch (e) { log.error(`ex in move.scoresToString: ${e}`); }
 }
-
-
 
 module.exports = {
   eat: eat,

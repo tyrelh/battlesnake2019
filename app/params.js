@@ -9,16 +9,16 @@ module.exports = {
   INITIAL_FEEDING: 5,
   SURVIVAL_MIN: 35,      // started @ 50   --+
   INITIAL_TIME_KILL: 60, // started @ 70   -
-  WALL_NEAR_BASE_MOVE_MULTIPLIER: 5.5, // started @ 1.6 +++++
-  WALL_NEAR_FILL_MULTIPLIER: 0.3, // started @ 0.4 -
+  WALL_NEAR_BASE_MOVE_MULTIPLIER: 6.5, // started @ 1.6 ++++++++
+  WALL_NEAR_FILL_MULTIPLIER: 0.2, // started @ 0.4 --
   // scores for moves
   ASTAR_SUCCESS: 9.2,    // started @ 10   -++
   SUGGEST_MOVE: 0.2,
-  ENEMY_DISTANCE: 1.5,   // started @ 0.99 +
-  BASE_KILL_ZONE: 2.1,
-  BASE_FOOD: 0.9,
+  ENEMY_DISTANCE: 0.5,   // started @ 0.99 +-
+  BASE_KILL_ZONE: 2,     // started @ 2.1  -
+  BASE_FOOD: 0.8,        // started @ 0.8  -
   BASE_TAIL: 7.9,        // started @  0.4 +
-  BASE_SPACE: 0.2,       // started @  0.2 -+
+  BASE_SPACE: 0.4,       // started @  0.2 -++
   BASE_WALL_NEAR: -1.1,    // started @ -0.1 ------
   BASE_WARNING: -2.6,    // started @  0.2 -+-
   BASE_DANGER: -9.0,     // started @  0.1 ---
