@@ -11,6 +11,7 @@ const initGameLogs = () => {
 
 // write logs for game to file and update the index of logs
 const writeLogs = (data) => {
+  if (p.CONSOLE_LOG) console.log(exLog);
   const gameId = data.game.id;
   const path = `${__dirname}/../logs/${gameId}.txt`;
   // append game exeptions to end of log for easy viewing
