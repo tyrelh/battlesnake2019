@@ -3,6 +3,8 @@ const log = require("./logger");
 const p = require("./params");
 
 
+
+
 const buildGrid = data => {
   const board = data.board;
   const self = data.you;
@@ -53,10 +55,8 @@ const buildGrid = data => {
         
       }
 
-      // mark DANGER or KILL_ZONE around enemy head based on snake length
-      // also check if tail can be TAIL or SNAKE_BODY
+      // check if tail can be TAIL or SNAKE_BODY
       let tailSpace = true;
-      let headZone = body.length < self.body.length ? keys.KILL_ZONE : keys.DANGER;
       // TODO: these checks can be simplified?
       // check down
       if (head.y + 1 < board.height && grid[head.y + 1][head.x] < keys.DANGER) {
@@ -82,25 +82,46 @@ const buildGrid = data => {
     });
 
     // fill DANGER or KILL_ZONE locations around each snake head
+    // also fill FUTURE_2 locations
     board.snakes.forEach(({ id, name, health, body }) => {
       if (id == self.id) return;
+      const imBigger = self.body.length > body.length;
+      let pos = { x: 0, y: 0 };
       const head = body[0];
-      let headZone = body.length < self.body.length ? keys.KILL_ZONE : keys.DANGER;
-      // check up
-      if (head.y + 1 < board.height && grid[head.y + 1][head.x] < keys.DANGER) {
-        grid[head.y + 1][head.x] = headZone;
+      const headZone = imBigger ? keys.KILL_ZONE : keys.DANGER;
+
+      // check up, down, left, righ
+      let offsets = [
+        {x: 0, y: -1}, // up
+        {x: 0, y: 1},  // down
+        {x: -1, y: 0}, // left
+        {x: 1, y: 0},  // right
+      ]
+      for (const offset of offsets) {
+        pos.x = head.x - offset.x;
+        pos.y = head.y - offset.y;
+        if (!outOfBounds(pos, grid) && grid[pos.y][pos.x] < keys.DANGER) {
+          grid[pos.y][pos.x] = headZone;
+        }
       }
-      // check down
-      if (head.y - 1 >= 0 && grid[head.y - 1][head.x] < keys.DANGER) {
-        grid[head.y - 1][head.x] = headZone;
-      }
-      // check left
-      if (head.x - 1 >= 0 && grid[head.y][head.x - 1] < keys.DANGER) {
-        grid[head.y][head.x - 1] = headZone;
-      }
-      // check right
-      if (head.x + 1 < board.width && grid[head.y][head.x + 1] < keys.DANGER) {
-        grid[head.y][head.x + 1] = headZone;
+
+      // check positions snake could be in 2 moves
+      offsets = [
+        {x: -1, y: -1},
+        {x: -2, y: 0},
+        {x: -1, y: 1},
+        {x: 0, y: 2},
+        {x: 1, y: 1},
+        {x: 2, y: 0},
+        {x: 1, y: -1},
+        {x: 0, y: -2}
+      ];
+      for (const offset of offsets) {
+        pos.x = head.x - offset.x;
+        pos.y = head.y - offset.y;
+        if (!outOfBounds(pos, grid) && grid[pos.y][pos.x] < keys.FOOD) {
+          grid[pos.y][pos.x] = keys.FUTURE_2;
+        }
       }
     });
   }
@@ -110,10 +131,16 @@ const buildGrid = data => {
   return grid;
 };
 
+
+
+
 // manhattan distance
 const getDistance = (a, b) => {
   return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 };
+
+
+
 
 // print grid to logs
 const printGrid = grid => {
@@ -131,6 +158,9 @@ const printGrid = grid => {
   }
 };
 
+
+
+
 // create a grid filled with a given value
 const initGrid = (width, height, fillValue) => {
   let grid;
@@ -147,6 +177,9 @@ const initGrid = (width, height, fillValue) => {
   return grid;
 }
 
+
+
+
 // return a deep copy of game grid
 const copyGrid = (grid) => {
   let gridCopy;
@@ -160,9 +193,27 @@ const copyGrid = (grid) => {
   return gridCopy;
 }
 
+
+
+
 // test if cells are the same
 const sameCell = (a, b) => a.x === b.x && a.y === b.y;
 
+
+
+
+// check if space is out of bounds
+const outOfBounds = (pos, grid) => {
+  const x = pos.x;
+  const y = pos.y;
+  try {
+    if (x < 0 || y < 0 || y >= grid.length || x >= grid[0].length) return true
+      else return false
+  } catch (e) {
+    log.error(`ex in search.outOfBounds: ${e}`);
+    return true
+  }
+};
 module.exports = {
   getDistance: getDistance,
   buildGrid: buildGrid,
