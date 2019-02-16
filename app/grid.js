@@ -119,7 +119,7 @@ const buildGrid = data => {
       for (const offset of offsets) {
         pos.x = head.x - offset.x;
         pos.y = head.y - offset.y;
-        if (!outOfBounds(pos, grid) && grid[pos.y][pos.x] < keys.FOOD) {
+        if (!outOfBounds(pos, grid) && grid[pos.y][pos.x] <= keys.WALLNEAR && grid[pos.y][pos.x] != keys.FOOD) {
           grid[pos.y][pos.x] = keys.FUTURE_2;
         }
       }
