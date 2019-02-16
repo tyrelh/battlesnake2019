@@ -16,7 +16,7 @@ const eat = (grid, data) => {
   const you = data.you;
   const myHead = s.location(data);
   const health = you.health;
-  const urgencyScore = 101 - health;
+  const urgencyScore = 100 - health;
   if (p.STATUS) log.status(`EATING w/ urgency ${urgencyScore}`);
   let target = null;
   let move = null;
@@ -27,10 +27,7 @@ const eat = (grid, data) => {
     while (move === null) {
       gridCopy[target.y][target.x] = k.SPACE;
       target = t.closestFood(gridCopy, myHead);
-      if (target === null) {
-        move = suggestMove(k.RIGHT, myHead, grid);
-        break;
-      }
+      if (target === null) break;
       move = search.astar(grid, data, target, k.FOOD);
     }
   }
@@ -38,7 +35,6 @@ const eat = (grid, data) => {
 
   try {
     if (move != null) {
-      // const searchScore = p.ASTAR_SUCCESS * urgency;
       if (p.DEBUG) {
         if (target != null) log.debug(`target in eat: ${pairToString(target)}`);
         log.debug(`Score for a* move: ${k.DIRECTION[move]}: ${urgencyScore}`);
@@ -46,13 +42,14 @@ const eat = (grid, data) => {
       return buildMove(grid, data, move, urgencyScore);
     }
     else {
-      return buildMove(grid, data, 0, 0);
+      const fallbackMove = getFallbackMove(grid, data);
+      if (fallbackMove.score != 0) {
+        return buildMove(grid, data, fallbackMove.move, fallbackMove.score);
+      }
     }
   }
-  catch (e) {
-    log.error(`ex in move.eat.buildmove: ${e}`, data.turn);
-    return buildMove(grid, data, move, p.ASTAR_SUCCESS);
-  }
+  catch (e) { log.error(`ex in move.eat.buildmove: ${e}`, data.turn); }
+  return buildMove(grid, data, 0, 0);
 };
 
  
@@ -136,12 +133,12 @@ const getFallbackMove = (grid, data) => {
 
 // build up move scores and return best move
 const buildMove = (grid, data, move = k.RIGHT, moveScore = 0) => {
-  const self = data.you;
+  const you = data.you;
   // grid = search.enemySearchForFood(grid, data);
   let scores = [];
   // get base next move scores
   try { 
-    scores = baseMoveScores(grid, self);
+    scores = baseMoveScores(grid, you);
     if (p.STATUS) log.status(`Adding moveScore ${moveScore} to move ${k.DIRECTION[move]}`);
     scores[move] += moveScore;
     if (p.STATUS) log.status(`Move scores: ${scoresToString(scores)}`);
@@ -207,9 +204,36 @@ const buildMove = (grid, data, move = k.RIGHT, moveScore = 0) => {
       }
     }
     if (uniqueSmallestDistanceMove){
-      let move = 
       log.debug(`Add ENEMY_DISTANCE ${p.ENEMY_DISTANCE} to move ${k.DIRECTION[smallestDistanceMove]} for closer KILL_ZONE`);
       scores[smallestDistanceMove] += p.ENEMY_DISTANCE;
+    }
+  }
+  catch (e) { log.error(`ex in move.buildMove.closestEnemyHead: ${e}`, data.turn); }
+  if (p.STATUS) log.status(`Move scores: ${scoresToString(scores)}`);
+
+  // see if a particular move will bring you closer to the center
+  try {
+    let centerDistances = [9999, 9999, 9999, 9999];
+    let smallestDistance = 9999;
+    let smallestDistanceMove = 0;
+    let uniqueSmallestDistanceMove = false;
+    for (let m = 0; m < 4; m++) {
+      const currentDistance = search.distanceToCenter(m, s.location(data), grid, data);
+      log.debug(`Distance to center for move ${k.DIRECTION[m]} is ${currentDistance}`);
+      if (currentDistance === 0) continue;
+      if (centerDistances[m] > currentDistance) {
+        centerDistances[m] = currentDistance;
+        if (smallestDistance === currentDistance) uniqueSmallestDistanceMove = false;
+        else if (smallestDistance > currentDistance) {
+          smallestDistance = currentDistance;
+          smallestDistanceMove = m;
+          uniqueSmallestDistanceMove = true;
+        }
+      }
+    }
+    if (uniqueSmallestDistanceMove){
+      log.debug(`Add ${smallestDistance} to move ${k.DIRECTION[smallestDistanceMove]} for closer to center`);
+      scores[smallestDistanceMove] += smallestDistance;
     }
   }
   catch (e) { log.error(`ex in move.buildMove.closestEnemyHead: ${e}`, data.turn); }

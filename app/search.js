@@ -415,6 +415,22 @@ const distanceToEnemy = (direction, grid, data, type = k.ENEMY_HEAD) => {
 }
 
 
+// distance from pos to center of board
+const distanceToCenter = (direction, startPos, grid, data) => {
+  try {
+    if (validMove(direction, startPos, grid)) {
+      centerPos = {
+        y: Math.round(grid.length / 2),
+        x: Math.round(grid[0].length / 2)
+      };
+      return g.getDistance(applyMoveToPos(direction, startPos), centerPos);
+    }
+  }
+  catch (e) { log.error(`ex in search.distanceToCenter: ${e}`, data.turn); }
+  return 0;
+}
+
+
 // test if cells are the same
 const sameCell = (a, b) => a.x === b.x && a.y === b.y;
 
@@ -544,5 +560,6 @@ module.exports = {
   fill: fill,
   distanceToEnemy: distanceToEnemy,
   enemySearchForFood: enemySearchForFood,
-  closeAccessableKillZoneFarFromWall: closeAccessableKillZoneFarFromWall
+  closeAccessableKillZoneFarFromWall: closeAccessableKillZoneFarFromWall,
+  distanceToCenter: distanceToCenter
 }
