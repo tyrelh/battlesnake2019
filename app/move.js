@@ -90,7 +90,7 @@ const killTime = (grid, data) => {
   let score = fallbackMove.score;
 
   if (p.DEBUG && move != null) log.debug(`Score for a* move: ${k.DIRECTION[move]}: ${p.ASTAR_SUCCESS}`);
-  return buildMove(grid, data, move, score);
+  return buildMove(grid, data, move, p.ASTAR_SUCCESS);
 }
 
 
