@@ -22,6 +22,8 @@ You can also deploy this repo directly to Heroku by clicking this link. You will
 * [My 2018 Python Entry](https://github.com/tyrelh/battlesnake2018)
 
 ## Changelog
+* **v2.3.5:**
+  * Add score bias for move bringing you closer to center of game.
 * **v2.3.4:**
   * Rework hunting algorithm to favor side of smaller snake farther from the wall.
   * Some refactoring to DRY code
