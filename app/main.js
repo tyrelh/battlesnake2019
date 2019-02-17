@@ -1,12 +1,16 @@
-const k = require("./keys");
+const keys = require("./keys");
 const g = require("./grid");
 const m = require("./move");
 const p = require("./params");
 const s = require("./self");
 const log = require("./logger");
+const search = require("./search");
+
+
 
 let slowest = 0;
 let slowestMove = 0;
+
 
 
 // called for every move
@@ -24,14 +28,17 @@ const move = (req, res) => {
   if (p.STATUS) log.status(`\n\n####################################### MOVE ${data.turn}`);
 
   let grid = [];
-  try{ grid = g.buildGrid(data); }
+  try {
+    grid = g.buildGrid(data);
+    grid = search.preprocessGrid(grid, data);
+  }
   catch (e) { log.error(`ex in main.buildGrid: ${e}`, turn); }
   
   let move = null;
   if (p.DEBUG) log.status(`biggest snake ? ${s.biggestSnake(data)}`);
 
   // if you are hungry or small you gotta eat
-  if (health < p.SURVIVAL_MIN) {
+  if (health < p.SURVIVAL_MIN || turn < p.INITIAL_FEEDING) {
     try { move = m.eat(grid, data); }
     catch (e) { log.error(`ex in main.survivalMin: ${e}`, turn); }
   }
@@ -64,8 +71,9 @@ const move = (req, res) => {
     }
     log.status(`Move ${data.turn} took ${endTime - startTime}ms.`);
   }
-  return res.json({ move: move ? k.DIRECTION[move] : k.DIRECTION[k.UP] });
+  return res.json({ move: move ? keys.DIRECTION[move] : keys.DIRECTION[keys.UP] });
 };
+
 
 
 // called once at beginning of game
@@ -83,8 +91,9 @@ const start = (req, res) => {
   const green = "#2be384";
   const green2 = "#02B07C";
   const purple = "#9557E0";
-  return res.json({ color: purple });
+  return res.json({ color: blue });
 };
+
 
 
 // called when you die, or end of game if you win
@@ -94,6 +103,7 @@ const end = (req, res) => {
   log.writeLogs(req.body);
   return res.json({});
 };
+
 
 
 module.exports = {
