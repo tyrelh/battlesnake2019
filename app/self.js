@@ -1,6 +1,9 @@
 const log = require("./logger");
-const p = require("./params");
+const params = require("./params");
 
+
+
+// get your head location
 const location = data => {
   const you = data.you;
   try { return {x: you.body[0].x, y: you.body[0].y}; }
@@ -8,6 +11,9 @@ const location = data => {
   return {x: 0, y: 0};
 }
 
+
+
+// get your tail location
 const tailLocation = data => {
   const you = data.you;
   try {
@@ -17,6 +23,8 @@ const tailLocation = data => {
   catch (e) { log.error(`ex in self.tailLocation: ${e}`, data.turn); }
   return {x: 0, y: 0};
 }
+
+
 
 // will return if you are the largest snake on the board
 const biggestSnake = data => {
@@ -34,6 +42,8 @@ const biggestSnake = data => {
   catch (e) { log.error(`!!! ex in self.biggestSnake: ${e}`, data.turn); }
   return false;
 }
+
+
 
 module.exports = {
   location: location,
