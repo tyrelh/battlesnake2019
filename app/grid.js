@@ -4,7 +4,6 @@ const p = require("./params");
 
 
 
-
 const buildGrid = data => {
   const board = data.board;
   const self = data.you;
@@ -90,7 +89,7 @@ const buildGrid = data => {
       const head = body[0];
       const headZone = imBigger ? keys.KILL_ZONE : keys.DANGER;
 
-      // check up, down, left, righ
+      // check up, down, left, right
       let offsets = [
         {x: 0, y: -1}, // up
         {x: 0, y: 1},  // down
@@ -133,12 +132,10 @@ const buildGrid = data => {
 
 
 
-
 // manhattan distance
 const getDistance = (a, b) => {
   return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 };
-
 
 
 
@@ -160,7 +157,6 @@ const printGrid = grid => {
 
 
 
-
 // create a grid filled with a given value
 const initGrid = (width, height, fillValue) => {
   let grid;
@@ -179,7 +175,6 @@ const initGrid = (width, height, fillValue) => {
 
 
 
-
 // return a deep copy of game grid
 const copyGrid = (grid) => {
   let gridCopy;
@@ -195,10 +190,8 @@ const copyGrid = (grid) => {
 
 
 
-
 // test if cells are the same
 const sameCell = (a, b) => a.x === b.x && a.y === b.y;
-
 
 
 
@@ -214,10 +207,59 @@ const outOfBounds = (pos, grid) => {
     return true
   }
 };
+
+
+
+// pos is on the outer bounds of the board
+const onPerimeter = (pos, grid) => {
+  try {
+    const perimeterLeft = 0;
+    const perimeterRight = grid[0].length - 1;
+    const perimeterUp = 0;
+    const perimeterDown = grid.length - 1;
+    if (
+      pos.x === perimeterLeft ||
+      pos.x === perimeterRight ||
+      pos.y === perimeterUp ||
+      pos.y === perimeterDown
+    ) {
+      return true;
+    }
+  }
+  catch (e) { log.error(`ex in self.onPerimiter: ${e}`); }
+  return false;
+}
+
+
+
+// pos is near the outer bounds of the board
+const nearPerimeter = (pos, grid) => {
+  try {
+    const perimeterLeft = 1;
+    const perimeterRight = grid[0].length - 2;
+    const perimeterUp = 1;
+    const perimeterDown = grid.length - 2;
+    if (
+      pos.x === perimeterLeft ||
+      pos.x === perimeterRight ||
+      pos.y === perimeterUp ||
+      pos.y === perimeterDown
+    ) {
+      return true;
+    }
+  }
+  catch (e) { log.error(`ex in self.onPerimiter: ${e}`); }
+  return false;
+}
+
+
+
 module.exports = {
   getDistance: getDistance,
   buildGrid: buildGrid,
   printGrid: printGrid,
   initGrid: initGrid,
-  copyGrid: copyGrid
+  copyGrid: copyGrid,
+  onPerimeter: onPerimeter,
+  nearPerimeter: nearPerimeter
 };
