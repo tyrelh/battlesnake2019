@@ -1,13 +1,19 @@
 const fs = require("fs");
 const p = require("./params");
 
+
+
 let log = "";
 let exLog = "############################# EXCEPTIONS\n";
+
+
 
 const initGameLogs = () => {
   log = "";
   exLog = "############################# EXCEPTIONS\n";
 }
+
+
 
 // write logs for game to file and update the index of logs
 const writeLogs = (data) => {
@@ -47,11 +53,13 @@ const writeLogs = (data) => {
   );
 }
 
+
+
 // debug levels
 const error = (message, turn = null) => {
   log += `ERROR: ${message}\n`
   if (p.CONSOLE_LOG) console.log(`ERROR: ${message}`);
-  if (turn != null) exLog += `EX ON TURN ${turn}: ${message}\n`
+  exLog += `EX ON TURN ${turn != null ? turn : "none"}: ${message}\n`
 }
 const status = message => {
   log += `${message}\n`
@@ -61,6 +69,8 @@ const debug = message => {
   log += `DEBUG: ${message}\n`
   if (p.CONSOLE_LOG) console.log(`DEBUG: ${message}`);
 }
+
+
 
 module.exports = {
   initGameLogs: initGameLogs,
