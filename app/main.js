@@ -91,7 +91,11 @@ const start = (req, res) => {
   const green = "#2be384";
   const green2 = "#02B07C";
   const purple = "#9557E0";
-  return res.json({ color: blue });
+  return res.json({
+    color: purple,
+    headType: "beluga",
+    tailType: "hook"
+  });
 };
 
 
