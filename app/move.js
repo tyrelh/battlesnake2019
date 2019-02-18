@@ -8,16 +8,12 @@ const log = require("./logger");
 
 
 
-let previousMove = 0;
-
-
-
 // target closest reachable food
 const eat = (grid, data) => {
   const you = data.you;
   const myHead = s.location(data);
   const health = you.health;
-  const urgencyScore = 100 - health;
+  const urgencyScore = Math.floor((100 - health) / 2);
   if (params.STATUS) log.status(`EATING w/ urgency ${urgencyScore}`);
   let target = null;
   let move = null;
@@ -25,7 +21,7 @@ const eat = (grid, data) => {
   try {
     target = t.closestFood(grid, myHead);
     move = search.astar(grid, data, target, keys.FOOD);
-    while (move === null) {
+    while (move === null && target != null) {
       gridCopy[target.y][target.x] = keys.DANGER;
       target = t.closestFood(gridCopy, myHead);
       if (target === null) break;
