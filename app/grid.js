@@ -51,37 +51,43 @@ const buildGrid = data => {
         else {
           grid[head.y][head.x] = keys.SMALL_HEAD;
         }
-        
       }
 
-      // check if tail can be TAIL or SNAKE_BODY
-      let tailSpace = true;
-      // TODO: these checks can be simplified?
-      // check down
-      if (head.y + 1 < board.height && grid[head.y + 1][head.x] < keys.DANGER) {
-        if (grid[head.y + 1][head.x] === keys.FOOD) tailSpace = false;
+      if (data.turn > 2) {
+        const tail = body[body.length - 1];
+        const tail2 = body[body.length - 1];
+        if (!sameCell(tail, tail2)) {
+          grid[tail.y][tail.x] = keys.TAIL;
+        }
       }
-      // check up
-      if (head.y - 1 >= 0 && grid[head.y - 1][head.x] < keys.DANGER) {
-        if (grid[head.y - 1][head.x] === keys.FOOD) tailSpace = false;
-      }
-      // check left
-      if (head.x + 1 < board.width && grid[head.y][head.x + 1] < keys.DANGER) {
-        if (grid[head.y][head.x + 1] === keys.FOOD) tailSpace = false;
-      }
-      // check right
-      if (head.x - 1 >= 0 && grid[head.y][head.x - 1] < keys.DANGER) {
-        if (grid[head.y][head.x - 1] === keys.FOOD) tailSpace = false;
-      }
-      // check for tail
-      if (tailSpace && data.turn > 3) {
-        let tail = body[body.length - 1]
-        grid[tail.y][tail.x] = keys.TAIL;
-      }
+
+      // // check if tail can be T AIL or SNAKE_BODY
+      // let tailSpace = true;
+      // // TODO: these checks can be simplified?
+      // // check down
+      // if (head.y + 1 < board.height && grid[head.y + 1][head.x] < keys.DANGER) {
+      //   if (grid[head.y + 1][head.x] === keys.FOOD) tailSpace = false;
+      // }
+      // // check up
+      // if (head.y - 1 >= 0 && grid[head.y - 1][head.x] < keys.DANGER) {
+      //   if (grid[head.y - 1][head.x] === keys.FOOD) tailSpace = false;
+      // }
+      // // check left
+      // if (head.x + 1 < board.width && grid[head.y][head.x + 1] < keys.DANGER) {
+      //   if (grid[head.y][head.x + 1] === keys.FOOD) tailSpace = false;
+      // }
+      // // check right
+      // if (head.x - 1 >= 0 && grid[head.y][head.x - 1] < keys.DANGER) {
+      //   if (grid[head.y][head.x - 1] === keys.FOOD) tailSpace = false;
+      // }
+      // // check for tail
+      // if (tailSpace && data.turn > 3) {
+      //   let tail = body[body.length - 1]
+      //   grid[tail.y][tail.x] = keys.TAIL;
+      // }
     });
 
     // fill DANGER or KILL_ZONE locations around each snake head
-    // also fill FUTURE_2 locations
     board.snakes.forEach(({ id, name, health, body }) => {
       if (id == self.id) return;
       const imBigger = self.body.length > body.length;
@@ -96,16 +102,16 @@ const buildGrid = data => {
         {x: -1, y: 0}, // left
         {x: 1, y: 0},  // right
       ]
-      for (const offset of offsets) {
-        pos.x = head.x - offset.x;
-        pos.y = head.y - offset.y;
+      for (let offset of offsets) {
+        pos.x = head.x + offset.x;
+        pos.y = head.y + offset.y;
         if (!outOfBounds(pos, grid) && grid[pos.y][pos.x] < keys.DANGER) {
           grid[pos.y][pos.x] = headZone;
         }
       }
 
       // check positions snake could be in 2 moves
-      offsets = [
+      let future2Offsets = [
         {x: -1, y: -1},
         {x: -2, y: 0},
         {x: -1, y: 1},
@@ -115,10 +121,10 @@ const buildGrid = data => {
         {x: 1, y: -1},
         {x: 0, y: -2}
       ];
-      for (const offset of offsets) {
-        pos.x = head.x - offset.x;
-        pos.y = head.y - offset.y;
-        if (!outOfBounds(pos, grid) && grid[pos.y][pos.x] <= keys.WALLNEAR && grid[pos.y][pos.x] != keys.FOOD) {
+      for (let offset of future2Offsets) {
+        pos.x = head.x + offset.x;
+        pos.y = head.y + offset.y;
+        if (!outOfBounds(pos, grid) && grid[pos.y][pos.x] <= keys.WALL_NEAR && grid[pos.y][pos.x] != keys.FOOD) {
           grid[pos.y][pos.x] = keys.FUTURE_2;
         }
       }
