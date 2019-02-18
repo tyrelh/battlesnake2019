@@ -94,7 +94,7 @@ const start = (req, res) => {
   return res.json({
     color: purple,
     headType: "beluga",
-    tailType: "hook"
+    tailType: "bolt"
   });
 };
 
