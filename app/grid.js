@@ -54,7 +54,7 @@ const buildGrid = data => {
       }
 
       // check if tail can be marked TAIL or remain SNAKE_BODY
-      if (data.turn > 1 && health === 100) {
+      if (data.turn > 1 && health != 100) {
         const tail = body[body.length - 1];
         grid[tail.y][tail.x] = keys.TAIL;
       }
