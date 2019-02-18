@@ -276,7 +276,7 @@ const preprocessGrid = (grid, data) => {
       if (params.DEBUG) log.debug(`I am near perimeter.`);
       const enemyLocations = getEnemyLocations(data);
       let gridCopy = g.copyGrid(grid);
-      for (const enemy of enemyLocations) {
+      for (let enemy of enemyLocations) {
         if (g.onPerimeter(enemy, grid)) {
           if (params.DEBUG) log.debug(`Enemy at ${pairToString(enemy)} is on perimeter`);
           gridCopy = edgeFillFromEnemyToYou(enemy, gridCopy, grid, data);
@@ -295,7 +295,7 @@ const edgeFillFromEnemyToYou = (enemy, gridCopy, grid, data) => {
   try {
     const yourHead = s.location(data);
     const enemyMoves = getEnemyMoveLocations(enemy, grid);
-    for (const enemyMove of enemyMoves) {
+    for (let enemyMove of enemyMoves) {
       if (params.DEBUG) log.debug (`Doing enemy edge fill for move @ ${pairToString(enemyMove)}`);
 
       // begin fill search
@@ -410,7 +410,7 @@ const edgeFillFromEnemyToYou = (enemy, gridCopy, grid, data) => {
 
       if (foundMe) {
         if (params.STATUS) log.status(`Adding ${edgeSpaces.length} killzones for enemy near ${pairToString(enemy)}`);
-        for (const space of edgeSpaces) {
+        for (let space of edgeSpaces) {
           gridCopy[space.y][space.x] = keys.KILL_ZONE;
         }
       }

@@ -26,7 +26,7 @@ const eat = (grid, data) => {
     target = t.closestFood(grid, myHead);
     move = search.astar(grid, data, target, keys.FOOD);
     while (move === null) {
-      gridCopy[target.y][target.x] = keys.SPACE;
+      gridCopy[target.y][target.x] = keys.DANGER;
       target = t.closestFood(gridCopy, myHead);
       if (target === null) break;
       move = search.astar(grid, data, target, keys.FOOD);
