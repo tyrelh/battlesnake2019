@@ -1,7 +1,7 @@
 {
   "name": "zeroCool",
   "description": "A Battlesnake 2019 AI written in NodeJS",
-  "version": "2.4.1",
+  "version": "2.4.1.1",
   "private": true,
   "author": "Tyrel Hiebert",
   "repository": "https://github.com/tyrelh/battlesnake2019",
@@ -12,7 +12,6 @@
     }
   ],
   "dependencies": {
-    "@types/node": "^10.12.21",
     "body-parser": "^1.18.3",
     "cross-env": "^5.2.0",
     "express": "^4.16.4",
