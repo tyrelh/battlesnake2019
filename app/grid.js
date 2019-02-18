@@ -53,17 +53,14 @@ const buildGrid = data => {
         }
       }
 
-      if (data.turn > 2) {
-        const tail = body[body.length - 1];
-        const tail2 = body[body.length - 1];
-        if (!sameCell(tail, tail2)) {
+      // check if tail can be marked TAIL or remain SNAKE_BODY
+      if (data.turn > 1 && health === 100) {
           grid[tail.y][tail.x] = keys.TAIL;
-        }
       }
 
       // // check if tail can be T AIL or SNAKE_BODY
       // let tailSpace = true;
-      // // TODO: these checks can be simplified?
+      // // TO do: these checks can be simplified?
       // // check down
       // if (head.y + 1 < board.height && grid[head.y + 1][head.x] < keys.DANGER) {
       //   if (grid[head.y + 1][head.x] === keys.FOOD) tailSpace = false;
