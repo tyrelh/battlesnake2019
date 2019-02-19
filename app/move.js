@@ -13,7 +13,7 @@ const eat = (grid, data) => {
   const you = data.you;
   const myHead = s.location(data);
   const health = you.health;
-  const urgencyScore = Math.floor((100 - health) / 2);
+  const urgencyScore = Math.floor((102 - health) / 2.2);
   if (params.STATUS) log.status(`EATING w/ urgency ${urgencyScore}`);
   let target = null;
   let move = null;
