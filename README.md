@@ -22,6 +22,8 @@ You can also deploy this repo directly to Heroku by clicking this link. You will
 * [My 2018 Python Entry](https://github.com/tyrelh/battlesnake2018)
 
 ## Changelog
+* **v2.4.1:**
+  * Scale fill score down when area less than body length and no tails are present.
 * **v2.4:**
   * When enemy against wall, search for new possible kill opportunities.
 * **v2.3.5:**
