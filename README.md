@@ -23,6 +23,7 @@ You can also deploy this repo directly to Heroku by clicking this link. You will
 
 ## Changelog
 * **v2.4.1:**
+  * Snake will now try to coil tighter to save space when trapped an space smaller than its body and no tails are present.
   * Scale fill score down when area less than body length and no tails are present.
 * **v2.4:**
   * When enemy against wall, search for new possible kill opportunities.
