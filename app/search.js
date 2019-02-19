@@ -407,7 +407,7 @@ const edgeFillFromEnemyToYou = (enemy, gridCopy, grid, data) => {
         }
       }
 
-      if (fail) return false;
+      if (fail) return gridCopy;
 
       if (foundMe) {
         if (params.STATUS) log.status(`Adding ${edgeSpaces.length} killzones for enemy near ${pairToString(enemy)}`);
@@ -424,7 +424,7 @@ const edgeFillFromEnemyToYou = (enemy, gridCopy, grid, data) => {
     }
   }
   catch (e) { log.error(`ex in search.edgeFillFromEnemyToYou: ${e}`, data.turn); }
-  return gridCopy
+  return gridCopy;
 }
 
 
