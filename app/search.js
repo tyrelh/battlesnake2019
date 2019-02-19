@@ -299,6 +299,7 @@ const edgeFillFromEnemyToYou = (enemy, gridCopy, grid, data) => {
       if (params.DEBUG) log.debug (`Doing enemy edge fill for move @ ${pairToString(enemyMove)}`);
 
       // begin fill search
+
       let closedGrid;
       let openGrid;
       closedGrid = g.initGrid(grid[0].length, grid.length, false);
@@ -361,7 +362,7 @@ const edgeFillFromEnemyToYou = (enemy, gridCopy, grid, data) => {
             inGrid(nextUp, grid) === keys.KILL_ZONE ||
             inGrid(nextUp, grid) === keys.DANGER
           )) {
-            fail == true;
+            fail = true;
           }
           addToOpen(nextUp);
         }
@@ -374,7 +375,7 @@ const edgeFillFromEnemyToYou = (enemy, gridCopy, grid, data) => {
             inGrid(nextDown, grid) === keys.KILL_ZONE ||
             inGrid(nextDown, grid) === keys.DANGER
           )) {
-            fail == true;
+            fail = true;
           }
           addToOpen(nextDown);
         }
@@ -387,7 +388,7 @@ const edgeFillFromEnemyToYou = (enemy, gridCopy, grid, data) => {
             inGrid(nextLeft, grid) === keys.KILL_ZONE ||
             inGrid(nextLeft, grid) === keys.DANGER
           )) {
-            fail == true;
+            fail = true;
           }
           addToOpen(nextLeft);
         }
@@ -400,7 +401,7 @@ const edgeFillFromEnemyToYou = (enemy, gridCopy, grid, data) => {
             inGrid(nextRight, grid) === keys.KILL_ZONE ||
             inGrid(nextRight, grid) === keys.DANGER
           )) {
-            fail == true;
+            fail = true;
           }
           addToOpen(nextRight);
         }
