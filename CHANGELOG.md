@@ -1,4 +1,14 @@
 # Changelog
+* **v2.4.1:**
+  * Snake will now try to coil tighter to save space when trapped an space smaller than its body and no tails are present.
+  * Scale fill score down when area less than body length and no tails are present.
+* **v2.4:**
+  * When enemy against wall, search for new possible kill opportunities.
+* **v2.3.5:**
+  * Add score bias for move bringing you closer to center of game.
+* **v2.3.4:**
+  * Rework hunting algorithm to favor side of smaller snake farther from the wall.
+  * Some refactoring to DRY code
 * **v2.3.3:**
   * Grid copy functionality to fix bug in secondary target searches.
   * Add target search redundancy to killTime for when tail is inaccessable.
