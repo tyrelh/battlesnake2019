@@ -364,13 +364,15 @@ const edgeFillFromEnemyToYou = (enemy, gridCopy, grid, data) => {
         const nextUp = {x: nextMove.x, y: nextMove.y - 1};
         if (!outOfBounds(nextUp, grid)) {
           if (sameCell(yourHead, nextUp)) foundMe = true;
-          if (!(
-            inGrid(nextUp, grid) === keys.WALL_NEAR ||
-            inGrid(nextUp, grid) === keys.KILL_ZONE ||
-            inGrid(nextUp, grid) === keys.DANGER ||
-            inGrid(nextUp, grid) === keys.FUTURE_2 ||
-            inGrid(nextUp, grid) === keys.FOOD
-          ) || !g.onPerimeter(nextUp, grid)) {
+          if ( !g.onPerimeter(nextUp, grid)
+          //   !(
+          //   inGrid(nextUp, grid) === keys.WALL_NEAR ||
+          //   inGrid(nextUp, grid) === keys.KILL_ZONE ||
+          //   inGrid(nextUp, grid) === keys.DANGER ||
+          //   inGrid(nextUp, grid) === keys.FUTURE_2 ||
+          //   inGrid(nextUp, grid) === keys.FOOD
+          // )
+          ) {
             fail = true;
           }
           addToOpen(nextUp);
@@ -379,13 +381,15 @@ const edgeFillFromEnemyToYou = (enemy, gridCopy, grid, data) => {
         const nextDown = {x: nextMove.x, y: nextMove.y + 1};
         if (!outOfBounds(nextDown, grid)) {
           if (sameCell(yourHead, nextDown)) foundMe = true;
-          if (!(
-            inGrid(nextDown, grid) === keys.WALL_NEAR ||
-            inGrid(nextDown, grid) === keys.KILL_ZONE ||
-            inGrid(nextDown, grid) === keys.DANGER ||
-            inGrid(nextDown, grid) === keys.FUTURE_2 ||
-            inGrid(nextDown, grid) === keys.FOOD
-          ) || !g.onPerimeter(nextDown, grid)) {
+          if ( !g.onPerimeter(nextDown, grid)
+          //   !(
+          //   inGrid(nextDown, grid) === keys.WALL_NEAR ||
+          //   inGrid(nextDown, grid) === keys.KILL_ZONE ||
+          //   inGrid(nextDown, grid) === keys.DANGER ||
+          //   inGrid(nextDown, grid) === keys.FUTURE_2 ||
+          //   inGrid(nextDown, grid) === keys.FOOD
+          // )
+          ) {
             fail = true;
           }
           addToOpen(nextDown);
@@ -394,13 +398,15 @@ const edgeFillFromEnemyToYou = (enemy, gridCopy, grid, data) => {
         const nextLeft = {x: nextMove.x - 1, y: nextMove.y};
         if (!outOfBounds(nextLeft, grid)) {
           if (sameCell(yourHead, nextLeft)) foundMe = true;
-          if (!(
-            inGrid(nextLeft, grid) === keys.WALL_NEAR ||
-            inGrid(nextLeft, grid) === keys.KILL_ZONE ||
-            inGrid(nextLeft, grid) === keys.DANGER ||
-            inGrid(nextLeft, grid) === keys.FUTURE_2 ||
-            inGrid(nextLeft, grid) === keys.FOOD
-          ) || !g.onPerimeter(nextLeft, grid)) {
+          if ( !g.onPerimeter(nextLeft, grid)
+            // !(
+            //   inGrid(nextLeft, grid) === keys.WALL_NEAR ||
+            //   inGrid(nextLeft, grid) === keys.KILL_ZONE ||
+            //   inGrid(nextLeft, grid) === keys.DANGER ||
+            //   inGrid(nextLeft, grid) === keys.FUTURE_2 ||
+            //   inGrid(nextLeft, grid) === keys.FOOD
+            // )
+          ) {
             fail = true;
           }
           addToOpen(nextLeft);
@@ -409,13 +415,15 @@ const edgeFillFromEnemyToYou = (enemy, gridCopy, grid, data) => {
         const nextRight = {x: nextMove.x + 1, y: nextMove.y};
         if (!outOfBounds(nextRight, grid)) {
           if (sameCell(yourHead, nextRight)) foundMe = true;
-          if (!(
-            inGrid(nextRight, grid) === keys.WALL_NEAR ||
-            inGrid(nextRight, grid) === keys.KILL_ZONE ||
-            inGrid(nextRight, grid) === keys.DANGER ||
-            inGrid(nextRight, grid) === keys.FUTURE_2 ||
-            inGrid(nextRight, grid) === keys.FOOD
-          ) || !g.onPerimeter(nextRight, grid)) {
+          if (!g.onPerimeter(nextRight, grid)
+          //   !(
+          //   inGrid(nextRight, grid) === keys.WALL_NEAR ||
+          //   inGrid(nextRight, grid) === keys.KILL_ZONE ||
+          //   inGrid(nextRight, grid) === keys.DANGER ||
+          //   inGrid(nextRight, grid) === keys.FUTURE_2 ||
+          //   inGrid(nextRight, grid) === keys.FOOD
+          // )
+          ) {
             fail = true;
           }
           addToOpen(nextRight);
