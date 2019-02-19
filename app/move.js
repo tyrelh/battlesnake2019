@@ -13,7 +13,7 @@ const eat = (grid, data) => {
   const you = data.you;
   const myHead = s.location(data);
   const health = you.health;
-  const urgencyScore = Math.floor((102 - health) / 2.2);
+  const urgencyScore = Math.floor((103 - health) / 2.2);
   if (params.STATUS) log.status(`EATING w/ urgency ${urgencyScore}`);
   let target = null;
   let move = null;
@@ -38,15 +38,15 @@ const eat = (grid, data) => {
       }
       return buildMove(grid, data, move, urgencyScore);
     }
-    else {
-      const fallbackMove = getFallbackMove(grid, data);
-      if (fallbackMove.score != 0) {
-        return buildMove(grid, data, fallbackMove.move, fallbackMove.score);
-      }
-    }
+    // else {
+    //   const fallbackMove = getFallbackMove(grid, data);
+    //   if (fallbackMove.score != 0) {
+    //     return buildMove(grid, data, fallbackMove.move, fallbackMove.score);
+    //   }
+    // }
   }
   catch (e) { log.error(`ex in move.eat.buildmove: ${e}`, data.turn); }
-  return buildMove(grid, data, 0, 0);
+  return buildMove(grid, data, null, 0);
 };
 
  
@@ -62,15 +62,17 @@ const hunt = (grid, data) => {
     move = search.closeAccessableKillZoneFarFromWall(grid, data);
     if (move != null) {
       score = params.ASTAR_SUCCESS;
-    } else {
-      const fallbackMove = getFallbackMove(grid, data);
-      move = fallbackMove.move;
-      score = fallbackMove.score;
     }
+    // else {
+    //   const fallbackMove = getFallbackMove(grid, data);
+    //   move = fallbackMove.move;
+    //   score = fallbackMove.score;
+    // }
   }
   catch (e) { log.error(`ex in move.hunt: ${e}`, data.turn); }
 
-  if (params.DEBUG && move != null) log.debug(`In hunt calulated score ${score} for move ${keys.DIRECTION[move]}`);
+  if (params.DEBUG && move != null) log.debug(`In hunt calulated score ${score} for move ${keys.DIRECTION[move]}`)
+  else if (params.DEBUG && move === null) log.debug(`Move in hunt was NULL.`);
   return buildMove(grid, data, move, score)
 };
 
@@ -80,12 +82,12 @@ const hunt = (grid, data) => {
 const killTime = (grid, data) => {
   if (params.STATUS) log.status("KILLING TIME");
 
-  const fallbackMove = getFallbackMove(grid, data);
-  let move = fallbackMove.move;
-  let score = fallbackMove.score;
+  // const fallbackMove = getFallbackMove(grid, data);
+  // let move = fallbackMove.move;
+  // let score = fallbackMove.score;
 
-  if (params.DEBUG && move != null) log.debug(`Score for a* move: ${keys.DIRECTION[move]}: ${params.ASTAR_SUCCESS}`);
-  return buildMove(grid, data, move, params.ASTAR_SUCCESS);
+  // if (params.DEBUG && move != null) log.debug(`Score for a* move: ${keys.DIRECTION[move]}: ${params.ASTAR_SUCCESS}`);
+  return buildMove(grid, data, null, 0);
 }
 
 
@@ -119,22 +121,72 @@ const getFallbackMove = (grid, data) => {
     }
   }
   catch (e) { log.error(`ex in move.getFallbackMove: ${e}`, data.turn); }
-  return { move: suggestMove(keys.RIGHT, s.location(data), grid), score: 0 };
+  return { move: null, score: 0 };
+}
+
+
+
+const coil = (grid, data) => {
+  if (params.STATUS) log.status("Trying to coil to save space");
+  try {
+    let tailLocation = s.tailLocation(data);
+    let tailDistances = [0, 0, 0, 0];
+    let largestDistance = 0;
+
+    for (let m = 0; m < 4; m++) {
+      const nextMove = search.applyMoveToPos(m, s.location(data));
+      if (search.outOfBounds(nextMove, grid)) continue;
+
+      const currentDistance = g.getDistance(tailLocation, nextMove);
+      log.debug(`Distance to tail for move ${keys.DIRECTION[m]} is ${currentDistance}`);
+      if (tailDistances[m] < currentDistance) {
+        tailDistances[m] = currentDistance;
+        if (largestDistance < currentDistance) {
+          largestDistance = currentDistance;
+        }
+      }
+    }
+
+    let coilScores = [0, 0, 0, 0];
+    for (let m = 0; m < 4; m++) {
+      if (tailDistances[m] === largestDistance) {
+        coilScores[m] += params.COIL;
+      }
+    }
+    if (params.DEBUG) log.debug(`Coil scores are ${coilScores}`);
+    return coilScores
+  }
+  catch (e) { log.error(`ex in move.coil: ${e}`, data.turn); }
+  return [];
 }
 
 
 
 // build up move scores and return best move
-const buildMove = (grid, data, move = keys.RIGHT, moveScore = 0) => {
+const buildMove = (grid, data, move, moveScore = 0) => {
   const you = data.you;
-  // grid = search.enemySearchForFood(grid, data);
-  let scores = [];
-  // get base next move scores
-  try { 
-    scores = baseMoveScores(grid, you);
-    if (params.STATUS) log.status(`Adding moveScore ${moveScore} to move ${keys.DIRECTION[move]}`);
-    scores[move] += moveScore;
-    if (params.STATUS) log.status(`Move scores: ${scoresToString(scores)}`);
+  let scores = baseMoveScores(grid, you);
+  try {
+
+    // if move is null, try to find fallback move
+    if (move === null) {
+      const fallbackMove = getFallbackMove(grid, data);
+      move = fallbackMove.move;
+      // if no fallback move, try to coil on self to save space
+      if (move != null) {
+        scores[move] += fallbackMove.score;
+      } else {
+        const coilScores = coil(grid, data);
+        for (let m = 0; m < coilScores.length; m++) {
+          scores[m] += coilScores[m];
+        }
+      }
+    } else {
+      // get base next move scores
+      if (params.STATUS) log.status(`Adding moveScore ${moveScore} to move ${keys.DIRECTION[move]}`);
+      scores[move] += moveScore;
+      if (params.STATUS) log.status(`Move scores: ${scoresToString(scores)}`);
+    }
    }
   catch (e) { log.error(`ex in move.buildMove.baseMoveScores: ${e}`, data.turn); }
   

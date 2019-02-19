@@ -27,5 +27,6 @@ module.exports = {
   BASE_ENEMY_HEAD: -11,  // started @ -2   -
   BASE_BAD: -10.0,
   BASE_PREVIOUS: 0.09,   // started @  2   -
-  FORGET_ABOUT_IT: -100
+  FORGET_ABOUT_IT: -100,
+  COIL: 10
 }
