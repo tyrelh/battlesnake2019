@@ -158,6 +158,7 @@ const astar = (grid, data, destination, searchType = keys.FOOD, alternateStartPo
   const start = (alternateStartPos === null) ? s.location(data) : alternateStartPos;
   // on first few moves, point to closest food no matter what
   if (data.turn < params.INITIAL_FEEDING) {
+    if (params.DEBUG) log.debug("Within initial feeding, overriding move with closest food.")
     destination = t.closestFood(grid, start);
     searchType = keys.FOOD;
   }
@@ -366,8 +367,10 @@ const edgeFillFromEnemyToYou = (enemy, gridCopy, grid, data) => {
           if (!(
             inGrid(nextUp, grid) === keys.WALL_NEAR ||
             inGrid(nextUp, grid) === keys.KILL_ZONE ||
-            inGrid(nextUp, grid) === keys.DANGER
-          )) {
+            inGrid(nextUp, grid) === keys.DANGER ||
+            inGrid(nextUp, grid) === keys.FUTURE_2 ||
+            inGrid(nextUp, grid) === keys.FOOD
+          ) || !g.onPerimeter(nextUp, grid)) {
             fail = true;
           }
           addToOpen(nextUp);
@@ -379,8 +382,10 @@ const edgeFillFromEnemyToYou = (enemy, gridCopy, grid, data) => {
           if (!(
             inGrid(nextDown, grid) === keys.WALL_NEAR ||
             inGrid(nextDown, grid) === keys.KILL_ZONE ||
-            inGrid(nextDown, grid) === keys.DANGER
-          )) {
+            inGrid(nextDown, grid) === keys.DANGER ||
+            inGrid(nextDown, grid) === keys.FUTURE_2 ||
+            inGrid(nextDown, grid) === keys.FOOD
+          ) || !g.onPerimeter(nextDown, grid)) {
             fail = true;
           }
           addToOpen(nextDown);
@@ -392,8 +397,10 @@ const edgeFillFromEnemyToYou = (enemy, gridCopy, grid, data) => {
           if (!(
             inGrid(nextLeft, grid) === keys.WALL_NEAR ||
             inGrid(nextLeft, grid) === keys.KILL_ZONE ||
-            inGrid(nextLeft, grid) === keys.DANGER
-          )) {
+            inGrid(nextLeft, grid) === keys.DANGER ||
+            inGrid(nextLeft, grid) === keys.FUTURE_2 ||
+            inGrid(nextLeft, grid) === keys.FOOD
+          ) || !g.onPerimeter(nextLeft, grid)) {
             fail = true;
           }
           addToOpen(nextLeft);
@@ -405,8 +412,10 @@ const edgeFillFromEnemyToYou = (enemy, gridCopy, grid, data) => {
           if (!(
             inGrid(nextRight, grid) === keys.WALL_NEAR ||
             inGrid(nextRight, grid) === keys.KILL_ZONE ||
-            inGrid(nextRight, grid) === keys.DANGER
-          )) {
+            inGrid(nextRight, grid) === keys.DANGER ||
+            inGrid(nextRight, grid) === keys.FUTURE_2 ||
+            inGrid(nextRight, grid) === keys.FOOD
+          ) || !g.onPerimeter(nextRight, grid)) {
             fail = true;
           }
           addToOpen(nextRight);
@@ -766,7 +775,7 @@ module.exports = {
   astar: astar,
   fill: fill,
   distanceToEnemy: distanceToEnemy,
-  // enemySearchForFood: enemySearchForFood,
+  applyMoveToPos: applyMoveToPos,
   closeAccessableKillZoneFarFromWall: closeAccessableKillZoneFarFromWall,
   distanceToCenter: distanceToCenter,
   preprocessGrid: preprocessGrid
