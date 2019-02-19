@@ -133,6 +133,12 @@ const fill = (direction, grid, data, constraints = []) => {
   score += killZones * params.BASE_KILL_ZONE;
   score += warnings * params.BASE_WARNING;
   score += walls * (params.BASE_WALL_NEAR * params.WALL_NEAR_FILL_MULTIPLIER);
+
+  const myLength = you.body.length;
+  if (area < myLength && tails < 1) {
+    score = Math.floor(score / 2);
+  }
+
   if (params.DEBUG) log.debug(`Score in fill: ${score} for move ${keys.DIRECTION[direction]}. Area: ${area}`);
   return score;
 }
