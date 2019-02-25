@@ -286,7 +286,10 @@ const preprocessGrid = (grid, data) => {
       for (let enemy of enemyLocations) {
         if (g.onPerimeter(enemy, grid)) {
           if (params.DEBUG) log.debug(`Enemy at ${pairToString(enemy)} is on perimeter`);
-          gridCopy = edgeFillFromEnemyToYou(enemy, gridCopy, grid, data);
+          let result = edgeFillFromEnemyToYou(enemy, gridCopy, grid, data);
+          gridCopy = result.grid;
+          let move = null;
+          
         }
       }
       return gridCopy;
@@ -353,9 +356,10 @@ const edgeFillFromEnemyToYou = (enemy, gridCopy, grid, data) => {
       let edgeSpaces = [];
       let foundMe = false;
       let fail = false;
+      let nextMove = null;
 
       while (openStack.length > 0 && !foundMe && !fail) {
-        const nextMove = removeFromOpen();
+        nextMove = removeFromOpen();
         edgeSpaces.push(nextMove);
         addToClosed(nextMove);
         if (params.DEBUG) log.debug(`Next move in enemy fill search is ${pairToString(nextMove)}`);
@@ -363,74 +367,66 @@ const edgeFillFromEnemyToYou = (enemy, gridCopy, grid, data) => {
         // check up
         const nextUp = {x: nextMove.x, y: nextMove.y - 1};
         if (!outOfBounds(nextUp, grid)) {
-          if (sameCell(yourHead, nextUp)) foundMe = true;
-          if ( !g.onPerimeter(nextUp, grid)
-          //   !(
-          //   inGrid(nextUp, grid) === keys.WALL_NEAR ||
-          //   inGrid(nextUp, grid) === keys.KILL_ZONE ||
-          //   inGrid(nextUp, grid) === keys.DANGER ||
-          //   inGrid(nextUp, grid) === keys.FUTURE_2 ||
-          //   inGrid(nextUp, grid) === keys.FOOD
-          // )
-          ) {
-            fail = true;
+          if (sameCell(yourHead, nextUp)) {
+            foundMe = true;
+            break;
+          }
+          if (!g.onPerimeter(nextUp, grid)) {
+            if (inGrid(nextUp, grid) < keys.SNAKE_BODY) {
+              fail = true;
+              break;
+            }
           }
           addToOpen(nextUp);
         }
         // check down
         const nextDown = {x: nextMove.x, y: nextMove.y + 1};
         if (!outOfBounds(nextDown, grid)) {
-          if (sameCell(yourHead, nextDown)) foundMe = true;
-          if ( !g.onPerimeter(nextDown, grid)
-          //   !(
-          //   inGrid(nextDown, grid) === keys.WALL_NEAR ||
-          //   inGrid(nextDown, grid) === keys.KILL_ZONE ||
-          //   inGrid(nextDown, grid) === keys.DANGER ||
-          //   inGrid(nextDown, grid) === keys.FUTURE_2 ||
-          //   inGrid(nextDown, grid) === keys.FOOD
-          // )
-          ) {
-            fail = true;
+          if (sameCell(yourHead, nextDown)) {
+            foundMe = true;
+            break;
+          }
+          if ( !g.onPerimeter(nextDown, grid)) {
+            if (inGrid(nextDown, grid) < keys.SNAKE_BODY) {
+              fail = true;
+              break;
+            }
           }
           addToOpen(nextDown);
         }
         // check left
         const nextLeft = {x: nextMove.x - 1, y: nextMove.y};
         if (!outOfBounds(nextLeft, grid)) {
-          if (sameCell(yourHead, nextLeft)) foundMe = true;
-          if ( !g.onPerimeter(nextLeft, grid)
-            // !(
-            //   inGrid(nextLeft, grid) === keys.WALL_NEAR ||
-            //   inGrid(nextLeft, grid) === keys.KILL_ZONE ||
-            //   inGrid(nextLeft, grid) === keys.DANGER ||
-            //   inGrid(nextLeft, grid) === keys.FUTURE_2 ||
-            //   inGrid(nextLeft, grid) === keys.FOOD
-            // )
-          ) {
-            fail = true;
+          if (sameCell(yourHead, nextLeft)) {
+            foundMe = true;
+            break;
+          }
+          if ( !g.onPerimeter(nextLeft, grid)) {
+            if (inGrid(nextLeft, grid) < keys.SNAKE_BODY) {
+              fail = true;
+              break;
+            }
           }
           addToOpen(nextLeft);
         }
         // check right
         const nextRight = {x: nextMove.x + 1, y: nextMove.y};
         if (!outOfBounds(nextRight, grid)) {
-          if (sameCell(yourHead, nextRight)) foundMe = true;
-          if (!g.onPerimeter(nextRight, grid)
-          //   !(
-          //   inGrid(nextRight, grid) === keys.WALL_NEAR ||
-          //   inGrid(nextRight, grid) === keys.KILL_ZONE ||
-          //   inGrid(nextRight, grid) === keys.DANGER ||
-          //   inGrid(nextRight, grid) === keys.FUTURE_2 ||
-          //   inGrid(nextRight, grid) === keys.FOOD
-          // )
-          ) {
-            fail = true;
+          if (sameCell(yourHead, nextRight)) {
+            foundMe = true;
+            break;
+          }
+          if (!g.onPerimeter(nextRight, grid)) {
+            if (inGrid(nextRight, grid) < keys.SNAKE_BODY) {
+              fail = true;
+              break;
+            }
           }
           addToOpen(nextRight);
         }
       }
 
-      if (fail) return gridCopy;
+      if (fail) return { grid: gridCopy, move: null };
 
       if (foundMe) {
         if (params.STATUS) log.status(`Adding ${edgeSpaces.length} killzones for enemy near ${pairToString(enemy)}`);
@@ -444,10 +440,14 @@ const edgeFillFromEnemyToYou = (enemy, gridCopy, grid, data) => {
         g.printGrid(gridCopy);
       }
 
+      if (foundMe) {
+        return { grid: gridCopy, move: nextMove };
+      }
+
     }
   }
   catch (e) { log.error(`ex in search.edgeFillFromEnemyToYou: ${e}`, data.turn); }
-  return gridCopy;
+  return { grid: gridCopy, move: null };
 }
 
 

@@ -15,7 +15,7 @@ const eat = (grid, data) => {
   const health = you.health;
   let urgencyScore = (110 - health);
   if (data.turn > params.INITIAL_FEEDING) {
-    urgencyScore = Math.round(urgencyScore / 2.3);
+    urgencyScore = Math.round(urgencyScore * params.FEEDING_URGENCY_MULTIPLIER);
   }
   if (params.STATUS) log.status(`EATING w/ urgency ${urgencyScore}`);
   let target = null;
@@ -23,6 +23,10 @@ const eat = (grid, data) => {
   const gridCopy = g.copyGrid(grid);
   try {
     target = t.closestFood(grid, myHead);
+    if (target === null) {
+      if (params.STATUS) log.status("No food was found on board.");
+      return buildMove(grid, data, null, 0);
+    }
     move = search.astar(grid, data, target, keys.FOOD);
     while (move === null && target != null) {
       gridCopy[target.y][target.x] = keys.DANGER;
@@ -195,10 +199,22 @@ const buildMove = (grid, data, move, moveScore = 0) => {
   
   // get flood fill scores for each move
   try {
+    if (params.STATUS) log.status("Performing flood fill searches");
     for (let m = 0; m < 4; m++) {
+      let gridCopy = g.copyGrid(grid)
       scores[m] += search.fill(m, grid, data);
-      scores[m] += search.fill(m, grid, data, [keys.KILL_ZONE, keys.DANGER, keys.WARNING]);
-      scores[m] += search.fill(m, grid, data, [keys.KILL_ZONE, keys.DANGER, keys.WARNING, keys.FUTURE_2]);
+      gridCopy = g.moveTails(1, grid, data);
+      if (params.DEBUG_MAPS) {
+        log.debug("Map for fill search 1 move in advance");
+        g.printGrid(gridCopy);
+      }
+      scores[m] += search.fill(m, gridCopy, data, [keys.KILL_ZONE, keys.DANGER, keys.WARNING]);
+      gridCopy = g.moveTails(2, grid, data);
+      if (params.DEBUG_MAPS) {
+        log.debug("Map for fill search 2 moves in advance");
+        g.printGrid(gridCopy);
+      }
+      scores[m] += search.fill(m, gridCopy, data, [keys.KILL_ZONE, keys.DANGER, keys.WARNING, keys.FUTURE_2]);
     }
   }
   catch (e) { log.error(`ex in move.buildMove.fill: ${e}`, data.turn); }
@@ -338,7 +354,7 @@ const baseScoreForBoardPosition = (x, y, grid) => {
       case keys.FOOD:
         return params.BASE_FOOD;
       case keys.KILL_ZONE:
-        return params.BASE_KILL_ZONE;
+        return params.BASE_KILL_ZONE * params.KILL_ZONE_BASE_MOVE_MULTIPLIER;
       case keys.WALL_NEAR:
         return params.BASE_WALL_NEAR * params.WALL_NEAR_BASE_MOVE_MULTIPLIER;
       case keys.WARNING:

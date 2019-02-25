@@ -258,6 +258,66 @@ const nearPerimeter = (pos, grid) => {
 
 
 
+// make tail segments spaces as if the snake moved ahead given number of turns
+const moveTails = (moves, grid, data) => {
+  try {
+    let you = data.you
+    let gridCopy = copyGrid(grid);
+    data.board.snakes.forEach(({ id, name, health, body }) => {
+      for (let tailOffset = 1; tailOffset <= moves; tailOffset++) {
+        let tailY = body[body.length - tailOffset].y;
+        let tailX = body[body.length - tailOffset].x;
+        gridCopy[tailY][tailX] = keys.SPACE;
+      }
+
+      if (id == you.id) return;
+
+      // check next move positions for killzone or danger
+      const imBigger = you.body.length > body.length;
+      let pos = { x: 0, y: 0 };
+      const head = body[0];
+      const headZone = imBigger ? keys.KILL_ZONE : keys.DANGER;
+      let offsets = [
+        {x: 0, y: -1}, // up
+        {x: 0, y: 1},  // down
+        {x: -1, y: 0}, // left
+        {x: 1, y: 0},  // right
+      ]
+      for (let offset of offsets) {
+        pos.x = head.x + offset.x;
+        pos.y = head.y + offset.y;
+        if (!outOfBounds(pos, grid) && grid[pos.y][pos.x] < keys.DANGER) {
+          grid[pos.y][pos.x] = headZone;
+        }
+      }
+
+      // check positions snake could be in 2 moves
+      let future2Offsets = [
+        {x: -1, y: -1},
+        {x: -2, y: 0},
+        {x: -1, y: 1},
+        {x: 0, y: 2},
+        {x: 1, y: 1},
+        {x: 2, y: 0},
+        {x: 1, y: -1},
+        {x: 0, y: -2}
+      ];
+      for (let offset of future2Offsets) {
+        pos.x = head.x + offset.x;
+        pos.y = head.y + offset.y;
+        if (!outOfBounds(pos, grid) && grid[pos.y][pos.x] <= keys.WALL_NEAR && grid[pos.y][pos.x] != keys.FOOD) {
+          grid[pos.y][pos.x] = keys.FUTURE_2;
+        }
+      }
+    });
+    return gridCopy;
+  }
+  catch (e) { log.error(`ex in grid.moveTails: ${e}`, data.turn); }
+  return grid;
+}
+
+
+
 module.exports = {
   getDistance: getDistance,
   buildGrid: buildGrid,
@@ -265,5 +325,6 @@ module.exports = {
   initGrid: initGrid,
   copyGrid: copyGrid,
   onPerimeter: onPerimeter,
-  nearPerimeter: nearPerimeter
+  nearPerimeter: nearPerimeter,
+  moveTails
 };
