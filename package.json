@@ -1,7 +1,7 @@
 {
   "name": "zeroCool",
   "description": "A Battlesnake 2019 AI written in NodeJS",
-  "version": "2.4.1.3",
+  "version": "2.4.1",
   "private": true,
   "author": "Tyrel Hiebert",
   "repository": "https://github.com/tyrelh/battlesnake2019",
@@ -25,6 +25,6 @@
     "node": ">=8.x"
   },
   "scripts": {
-    "start": "cross-env PORT=5000 nodemon index.js"
+    "start": "cross-env PORT=5000 nodemon app.js"
   }
 }
