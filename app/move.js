@@ -143,7 +143,7 @@ const coil = (grid, data) => {
     for (let m = 0; m < 4; m++) {
       const nextMove = search.applyMoveToPos(m, s.location(data));
       if (search.outOfBounds(nextMove, grid)) continue;
-
+      if (grid[nextMove.y][nextMove.x] >= keys.SNAKE_BODY) continue;
       const currentDistance = g.getDistance(tailLocation, nextMove);
       log.debug(`Distance to tail for move ${keys.DIRECTION[m]} is ${currentDistance}`);
       if (tailDistances[m] < currentDistance) {
