@@ -81,10 +81,17 @@ const start = (req, res) => {
   // ensure previous game logs are cleared
   log.initGameLogs();
   if (p.STATUS) {
-    log.status(`####################################### STARTING GAME ${req.body.game.id}\n\n`);
+    log.status(`####################################### STARTING GAME ${req.body.game.id}`);
     log.status(`My snake id is ${req.body.you.id}`);
     slowest = 0;
     slowestMove = 0;
+    log.status("Snakes playing this game are:");
+    try {
+      req.body.board.snakes.forEach(({ id, name, health, body}) => {
+        log.status(name);
+      });
+    }
+    catch (e) { log.error(`ex in main.start.snakenames: ${e}`); }
   }
   const blue = "#3b94e3";
   const pink = "#cc4ff1";
