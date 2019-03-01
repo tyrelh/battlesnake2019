@@ -498,6 +498,39 @@ const distanceToCenter = (direction, startPos, grid, data) => {
 
 
 
+const closeAccessableFuture2FarFromWall = (grid, data) => {
+  try {
+    const you = data.you;
+    let target = null;
+    let move = null;
+    let foundMove = false;
+    let gridCopy = g.copyGrid(grid);
+    while (!foundMove) {
+      target = t.closestTarget(gridCopy, you.body[0], keys.SMALL_HEAD);
+      if (target === null) {
+        target = t.closestTarget(gridCopy, you.body[0], keys.ENEMY_HEAD);
+      }
+      if (target === null) {
+        return null;
+      }
+      let future2s = getFuture2InOrderOfDistanceFromWall(grid, target);
+      if (future2s != null) {
+        for (let future2 of future2s) {
+          move = astar(grid, data, future2, keys.FUTURE_2);
+          if (move != null) {
+            return move;
+          }
+        }
+      }
+      gridCopy[target.y][target.x] = keys.SNAKE_BODY;
+    }
+  }
+  catch (e) { log.error(`ex in search.closeAccessableFuture2FarFromWall: ${e}`, data.turn); }
+  return null;
+}
+
+
+
 const closeAccessableKillZoneFarFromWall = (grid, data) => {
   try {
     const you = data.you;
@@ -511,10 +544,9 @@ const closeAccessableKillZoneFarFromWall = (grid, data) => {
         return null;
       }
       let killZones = getKillZonesInOrderOfDistanceFromWall(grid, target);
-      console.log(`KILLZONES: ${killZones}`);
       if (killZones != null) {
         for (let killZone of killZones) {
-          move = astar(grid, data, killZone, keys.SMALL_HEAD)
+          move = astar(grid, data, killZone, keys.KILL_ZONE);
           if (move != null) {
             return move;
           }
@@ -524,6 +556,46 @@ const closeAccessableKillZoneFarFromWall = (grid, data) => {
     }
   }
   catch (e) { log.error(`ex in search.closeAccessableKillZoneFarFromWall: ${e}`, data.turn); }
+  return null;
+}
+
+
+
+const getFuture2InOrderOfDistanceFromWall = (grid, target) => {
+  try {
+    let spots = [];
+    let spot = {};
+    let distance = 0;
+    const possibleFuture2Offsets = [
+      { x: 0, y: -2 },
+      { x: 1, y: -1 },
+      { x: 2, y: 0 },
+      { x: 1, y: 1 },
+      { x: 0, y: 2 },
+      { x: -1, y: 1 },
+      { x: -2, y: 0 },
+      { x: -1, y: -1 },
+    ];
+    for (let offset of possibleFuture2Offsets) {
+      spot = { x: target.x + offset.x, y: target.y + offset.y };
+      if (!outOfBounds(spot, grid) && grid[spot.y][spot.y] === keys.FUTURE_2) {
+        distance = distanceFromWall(spot, grid);
+        spots.push({ pos: spot, distance: distance });
+      }
+    }
+
+    spots.sort(
+      (a, b) => (a.distance < b.distance) ? 1 : ((b.distance < a.distance) ? -1 : 0)
+    );
+
+    let future2sSorted = []
+    for (spot of spots) {
+      future2sSorted.push(spot.pos);
+    }
+    if (future2sSorted.length < 1) return null;
+    return future2sSorted;
+  }
+  catch (e) { log.error(`ex in search.getFuture2InOrderOfDistanceFromWall: ${e}`); }
   return null;
 }
 
@@ -786,5 +858,6 @@ module.exports = {
   applyMoveToPos: applyMoveToPos,
   closeAccessableKillZoneFarFromWall: closeAccessableKillZoneFarFromWall,
   distanceToCenter: distanceToCenter,
+  closeAccessableFuture2FarFromWall: closeAccessableFuture2FarFromWall,
   preprocessGrid: preprocessGrid
 }
