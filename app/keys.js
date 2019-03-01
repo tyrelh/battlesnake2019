@@ -7,11 +7,12 @@ module.exports = {
   FUTURE_2: 4,
   WALL_NEAR: 5,
   WARNING: 6,
-  DANGER: 7,
-  SNAKE_BODY: 8,
-  YOUR_BODY: 9,
-  SMALL_HEAD: 10,
-  ENEMY_HEAD: 11,
+  SMALL_DANGER: 7,
+  DANGER: 8,
+  SNAKE_BODY: 9,
+  YOUR_BODY: 10,
+  SMALL_HEAD: 11,
+  ENEMY_HEAD: 12,
   TYPE: [
     "KILL_ZONE",
     "SPACE",
@@ -20,13 +21,14 @@ module.exports = {
     "FUTURE_2",
     "WALL_NEAR",
     "WARNING",
+    "SMALL_DANGER",
     "DANGER",
     "SNAKE_BODY",
     "YOUR_BODY",
     "SMALL_HEAD",
     "ENEMY_HEAD"
   ],
-  MAP: ["!", " ", "T", "o", ".", "*", "x", "X", "s", "Y", "S", "E", "@"],
+  MAP: ["!", " ", "T", "o", ".", "*", "w", "x", "X", "s", "Y", "S", "E", "@"],
 
   // directions
   DIRECTION: [

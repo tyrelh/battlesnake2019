@@ -368,6 +368,8 @@ const baseScoreForBoardPosition = (x, y, grid) => {
         return params.BASE_WALL_NEAR * params.WALL_NEAR_BASE_MOVE_MULTIPLIER;
       case keys.WARNING:
         return params.BASE_WARNING;
+      case keys.SMALL_DANGER:
+        return params.BASE_SMALL_DANGER;
       case keys.DANGER:
         return params.BASE_DANGER;
       // default includes SNAKE_BODY, ENEMY_HEAD and YOUR_BODY

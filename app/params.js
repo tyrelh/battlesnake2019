@@ -12,7 +12,7 @@ module.exports = {
   WALL_NEAR_BASE_MOVE_MULTIPLIER: 12, // started @ 1.6 +++++++++++++
   WALL_NEAR_FILL_MULTIPLIER: 0.05,     // started @ 0.4 ---
   KILL_ZONE_BASE_MOVE_MULTIPLIER: 3.5,  // started @ 3 +
-  FEEDING_URGENCY_MULTIPLIER: 0.35,   // started @ 0.4 -
+  FEEDING_URGENCY_MULTIPLIER: 0.32,   // started @ 0.4 --
 
   // scores for moves
   ASTAR_SUCCESS: 9.3,    // started @ 10   -++
@@ -25,10 +25,11 @@ module.exports = {
   BASE_SPACE: 0.36,      // started @  0.2 -+++--+
   BASE_WALL_NEAR: -1.1,  // started @ -0.1 ------
   BASE_WARNING: -2.6,    // started @  0.2 -+-
+  BASE_SMALL_DANGER: -9.0,// started @ -5
   BASE_DANGER: -10.0,    // started @  0.1 ----
   BASE_ENEMY_HEAD: -11,  // started @ -2   -
   BASE_BAD: -10.0,
   BASE_PREVIOUS: 0.09,   // started @  2   -
   FORGET_ABOUT_IT: -100,
-  COIL: 15               // started @ 10   +
+  COIL: 5               // started @ 10   +
 }
