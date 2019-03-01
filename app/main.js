@@ -37,8 +37,9 @@ const move = (req, res) => {
   let move = null;
   if (p.DEBUG) log.status(`biggest snake ? ${s.biggestSnake(data)}`);
 
+  const minHealth = p.SURVIVAL_MIN - Math.floor(data.turn / p.LONG_GAME_ENDURANCE);
   // if you are hungry or small you gotta eat
-  if (health < p.SURVIVAL_MIN || turn < p.INITIAL_FEEDING) {
+  if (health < minHealth || turn < p.INITIAL_FEEDING) {
     try { move = m.eat(grid, data); }
     catch (e) { log.error(`ex in main.survivalMin: ${e}`, turn); }
   }

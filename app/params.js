@@ -8,6 +8,7 @@ module.exports = {
   // basic game params
   INITIAL_FEEDING: 10,  // started @  5   +++++++-
   SURVIVAL_MIN: 47,     // started @ 50   --+++++
+  LONG_GAME_ENDURANCE: 80, // started @ 80
   INITIAL_TIME_KILL: 0, // started @ 70   ---------------
   WALL_NEAR_BASE_MOVE_MULTIPLIER: 12, // started @ 1.6 +++++++++++++
   WALL_NEAR_FILL_MULTIPLIER: 0.05,     // started @ 0.4 ---
@@ -25,7 +26,7 @@ module.exports = {
   BASE_SPACE: 0.36,      // started @  0.2 -+++--+
   BASE_WALL_NEAR: -1.1,  // started @ -0.1 ------
   BASE_WARNING: -2.6,    // started @  0.2 -+-
-  BASE_SMALL_DANGER: -9.0,// started @ -5
+  BASE_SMALL_DANGER: -7.0,// started @ -5 -+
   BASE_DANGER: -10.0,    // started @  0.1 ----
   BASE_ENEMY_HEAD: -11,  // started @ -2   -
   BASE_BAD: -10.0,

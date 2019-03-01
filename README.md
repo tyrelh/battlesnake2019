@@ -22,6 +22,9 @@ You can also deploy this repo directly to Heroku by clicking this link. You will
 * [My 2018 Python Entry](https://github.com/tyrelh/battlesnake2018)
 
 ## Changelog
+* **v2.4.2:**
+  * Will treat same size snakes different than larger snakes. If all 3 available moves are in the path of dangerous snakes, will favor move protected by snake of same length if exists.
+  * Minimum survival health will scale down slightly as match goes on to decrease how long it gets in the late game.
 * **v2.4.1:**
   * Snake will now try to coil tighter to save space when trapped an space smaller than its body and no tails are present.
   * Scale fill score down when area less than body length and no tails are present.
