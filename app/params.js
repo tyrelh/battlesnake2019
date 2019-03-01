@@ -11,7 +11,7 @@ module.exports = {
   INITIAL_TIME_KILL: 0, // started @ 70   ---------------
   WALL_NEAR_BASE_MOVE_MULTIPLIER: 12, // started @ 1.6 +++++++++++++
   WALL_NEAR_FILL_MULTIPLIER: 0.05,     // started @ 0.4 ---
-  KILL_ZONE_BASE_MOVE_MULTIPLIER: 3,  // started @ 3
+  KILL_ZONE_BASE_MOVE_MULTIPLIER: 3.5,  // started @ 3 +
   FEEDING_URGENCY_MULTIPLIER: 0.35,   // started @ 0.4 -
 
   // scores for moves

@@ -67,21 +67,30 @@ const hunt = (grid, data) => {
 
   try {
     move = search.closeAccessableKillZoneFarFromWall(grid, data);
-    if (move != null) {
-      score = params.ASTAR_SUCCESS;
-    }
-    // else {
-    //   const fallbackMove = getFallbackMove(grid, data);
-    //   move = fallbackMove.move;
-    //   score = fallbackMove.score;
-    // }
+    if (move != null) score = params.ASTAR_SUCCESS;
   }
   catch (e) { log.error(`ex in move.hunt: ${e}`, data.turn); }
 
   if (params.DEBUG && move != null) log.debug(`In hunt calulated score ${score} for move ${keys.DIRECTION[move]}`)
   else if (params.DEBUG && move === null) log.debug(`Move in hunt was NULL.`);
-  return buildMove(grid, data, move, score)
+  return buildMove(grid, data, move, score);
 };
+
+const lateHunt = (grid, data) => {
+  let score = 0;
+  let move = null;
+  if (params.STATUS) log.status("HUNTING, LATE GAME");
+
+  try {
+    move = search.closeAccessableFuture2FarFromWall(grid, data);
+    if (move != null) score = params.ASTAR_SUCCESS;
+  }
+  catch (e) { log.error(`ex in move.lateHunt: ${e}`, data.turn); }
+
+  if (params.DEBUG && move != null) log.debug(`In lateHunt calulated score ${score} for move ${keys.DIRECTION[move]}`)
+  else if (params.DEBUG && move === null) log.debug(`Move in lateHunt was NULL.`);
+  return buildMove(grid, data, move, score);
+}
 
 
 
@@ -450,5 +459,6 @@ module.exports = {
   eat: eat,
   killTime: killTime,
   hunt: hunt,
+  lateHunt: lateHunt,
   validMove: validMove
 };
