@@ -1,9 +1,19 @@
 # Battlesnake 2019 AI
-![Battlesnake 2019](https://static1.squarespace.com/static/583102acff7c504696a7009b/t/5c2a3b9cf950b760dd5bacb4/1546542614910/BATTLESNAKE+LOGO+2019.png?format=2500w)
+![Battlesnake 2019](./static/logo.png)
 
-This is my entry for this years [Battlesnake](https://www.battlesnake.io) programming competition in Victoria BC being held on March 2, 2019.
+This is my entry for [Battlesnake](https://www.battlesnake.io) 2019 programming competition in Victoria BC being held on March 2, 2019.
 
 Forked from the [NodeJS starter snake](https://github.com/battlesnakeio/starter-snake-node) provided by the [Battlesnake community](https://github.com/battlesnakeio/community).
+
+## Things to work on for next year
+* Multi-a* search to target. Do a* starting from each valid move and apply the success score to all the moves that have the shortest a* distance.
+* Check for possible kill/block opportunities like you are for snakes against the edge of the board but for anywhere on the board.
+* Built logic so that once you hit an _ideal size_ it will switch to an alternate aggressive strategy that will target larger snakes future_2 moves rather than kill_zone. WIP.
+* If move will be limited next turn given a move (ie. you move into a v tight space, but not dead end), devalue that move.
+
+## Takeaways from Battlesnake 2019
+* All food bounty game killed me.
+* If an enemy snake has the same name as you, dont kill it! Its you! There may be 2 or more of your snakes on the board at the same time for the bounty snake games. Still did alright but would be nice to be knowlegable of that.
 
 ## Running the snake locally
 Follow the directions given on the [Battlesnake Docs](http://docs.battlesnake.io/zero-to-snake-linux.html) in the Zero to Snake section for your operating system. When you get to the point where it tells you to clone the starter snake, you can clone this snake instead if you wish.
@@ -20,16 +30,6 @@ You can also deploy this repo directly to Heroku by clicking this link. You will
 * [Battlesnake Docs](http://docs.battlesnake.io)
 * [Battlesnake NodeJS Starter Snake](https://github.com/battlesnakeio/starter-snake-node)
 * [My 2018 Python Entry](https://github.com/tyrelh/battlesnake2018)
-
-## Things to work on for next year
-* Multi-a* search to target. Do a* starting from each valid move and apply the success score to all the moves that have the shortest a* distance.
-* Check for possible kill/block opportunities like you are for snakes against the edge of the board but for anywhere on the board.
-* Built logic so that once you hit an _ideal size_ it will switch to an alternate aggressive strategy that will target larger snakes future_2 moves rather than kill_zone. WIP.
-* If move will be limited next turn given a move (ie. you move into a v tight space, but not dead end), devalue that move.
-
-## Takeaways from Battlesnake 2019
-* All food bounty game killed me.
-* If an enemy snake has the same name as you, dont kill it! Its you! There may be 2 or more of your snakes on the board at the same time for the bounty snake games. Still did alright but would be nice to be knowlegable of that.
 
 ## Changelog
 * **v2.5:**
