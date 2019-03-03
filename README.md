@@ -7,6 +7,8 @@ Forked from the [NodeJS starter snake](https://github.com/battlesnakeio/starter-
 
 ## Things to work on for next year
 * Multi-a* search to target. Do a* starting from each valid move and apply the success score to all the moves that have the shortest a* distance.
+  * Apply a fractional score to moves with longer distance? (moves that still have valid path but not best move, maybe 1/4?)
+* Mark a* target as SPACE/WARNING and search again for next best target. Maybe value those searches same as above but at 1/8 score?
 * Check for possible kill/block opportunities like you are for snakes against the edge of the board but for anywhere on the board.
 * Built logic so that once you hit an _ideal size_ it will switch to an alternate aggressive strategy that will target larger snakes future_2 moves rather than kill_zone. WIP.
 * If move will be limited next turn given a move (ie. you move into a v tight space, but not dead end), devalue that move.
