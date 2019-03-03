@@ -21,7 +21,20 @@ You can also deploy this repo directly to Heroku by clicking this link. You will
 * [Battlesnake NodeJS Starter Snake](https://github.com/battlesnakeio/starter-snake-node)
 * [My 2018 Python Entry](https://github.com/tyrelh/battlesnake2018)
 
+## Things to work on for next year
+* Multi-a* search to target. Do a* starting from each valid move and apply the success score to all the moves that have the shortest a* distance.
+* Check for possible kill/block opportunities like you are for snakes against the edge of the board but for anywhere on the board.
+* Built logic so that once you hit an _ideal size_ it will switch to an alternate aggressive strategy that will target larger snakes future_2 moves rather than kill_zone. WIP.
+* If move will be limited next turn given a move (ie. you move into a v tight space, but not dead end), devalue that move.
+
+## Takeaways from Battlesnake 2019
+* All food bounty game killed me.
+* If an enemy snake has the same name as you, dont kill it! Its you! There may be 2 or more of your snakes on the board at the same time for the bounty snake games. Still did alright but would be nice to be knowlegable of that.
+
 ## Changelog
+* **v2.5:**
+  * Upgraded snake from Heroku to AWS ElasticBeanstalk.
+  * If all moves are DANGER (possiblity of death by head on collision), favor move that is from a snake of equal length.
 * **v2.4.2:**
   * Will treat same size snakes different than larger snakes. If all 3 available moves are in the path of dangerous snakes, will favor move protected by snake of same length if exists.
   * Minimum survival health will scale down slightly as match goes on to decrease how long it gets in the late game.
